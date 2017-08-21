@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Events</title>
+</head>
+
+
+<script src="AfterLogin.js"></script>
+<link rel="stylesheet" href="UI.css">
+<meta charset="UTF-8">
+<title>Friend Zone</title>
+
+<body background="Website%20Backgrounds.jpg">
+
+        What <input type="text" id="eventName"><br>
+        Where <input type="text" id="eventLoc"><br>
+        When <input type="datetime-local" id="eventDate"><br>
+        Picture <input type="text" id="eventPic"><br>
+        Who <select id="friendSelect"></select><button class="myButton" onclick="addFriendToEvent()" id="friendButton">Add</button> <br>
+        <script>fillFriendList()</script>
+        <textarea rows="10" cols="50" id="eventDescription"> Description </textarea><br>
+        <button class="myButton" onclick="eventer()">SEND</button>
+        <button class="myButton" onclick="goHome()">BACK</button>
+
+</body>
+</html>
