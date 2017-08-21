@@ -14,18 +14,8 @@
         "body-parser": "*",
         "cookie-parser": "*"
     },
-    "devDependencies": {
-        "express" : "*",
-    "request": "^2.81.0",
-    "tape": "^4.7.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/DanielBub/Eventspp.git"
-  },
-    "keywords": [
-    "node",
-    "heroku",
-    "express"
-  ]
+  }
 }
