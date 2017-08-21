@@ -12,6 +12,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('static_data'));
+app.set('port', (process.env.PORT || 5000));
 
 var currentCookie = 1;
 var currentEventID = 1;
@@ -19,7 +20,7 @@ var usernamesToPasswords = {};
 var usernamesToCookies = {};
 var cookiesToUsernames = {};
 var usernamesToUsers = {};
-var eventIdsToEvents = {}
+var eventIdsToEvents = {};
 var maxCookieTime = 3600000;
 
 app.post('/register/:username/:password', function(req,res,next){
@@ -242,8 +243,11 @@ app.set('json spaces', 40);
 
 app.listen(8080);
 
-init();
+console.log("Server running on 8080");
 
+app.listen(app.get('port'), function() {
+    console.log('Node app is running on port', app.get('port'));
+});
 function init(){
 
     for(var i = 0; i < 10; i++){
