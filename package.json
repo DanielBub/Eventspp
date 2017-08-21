@@ -15,6 +15,7 @@
         "cookie-parser": "*"
     },
     "devDependencies": {
+        "express" : "*",
     "request": "^2.81.0",
     "tape": "^4.7.0"
   },
