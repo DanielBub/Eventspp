@@ -10,9 +10,9 @@
     "test": "node test.js"
     },
     "dependencies": {
-        "express": "~4.0.0",
-        "body-parser": "^1.17.2",
-        "cookie-parser": "~1.4.3"
+        "express": "*",
+        "body-parser": "*",
+        "cookie-parser": "*"
     },
     "devDependencies": {
     "request": "^2.81.0",
