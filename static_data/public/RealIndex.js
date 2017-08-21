@@ -1,4 +1,4 @@
-var server_prefix = "http://localhost:8080";
+var server_prefix = "https://eventsppp.herokuapp.com";
 var current_user = "";
 
 function moveToAfterLogin() {

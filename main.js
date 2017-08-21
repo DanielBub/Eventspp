@@ -243,11 +243,11 @@ app.set('json spaces', 40);
 
 app.listen(8080);
 
-console.log("Server running on 8080");
 
 app.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
+
 function init(){
 
     for(var i = 0; i < 10; i++){
