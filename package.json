@@ -10,15 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/DanielBub/Eventspp.git"
   },
-    "dependencies": {
-        "express": "*",
-        "body-parser": "*",
-        "cookie-parser": "*"
-    },
   "author": "Bublil",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/DanielBub/Eventspp/issues"
   },
-  "homepage": "https://github.com/DanielBub/Eventspp#readme"
+  "homepage": "https://github.com/DanielBub/Eventspp#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.15.4"
+  }
 }
