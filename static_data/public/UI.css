@@ -6,6 +6,41 @@ button {
 	display: inline-block;
 }
 
+body {margin:0;}
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #1f2f47;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+}
+
+li {
+	float: left;
+	width: 25%;
+}
+
+li a {
+	display: block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+
+}
+
+li a:hover:not(.active) {
+	background-color: #111;
+}
+
+.active {
+	background-color: #000000;
+}
+
 .myButton {
 	display:inline-block;
 	-moz-box-shadow:inset 0px 0px 15px 3px #23395e;
@@ -74,7 +109,13 @@ body {
 	text-align: center;
 }
 
+.bottomwrap {
+	bottom: 0;
+	heigh: 10vh;
+}
+
 .bottom {
+	font-size: 400px;
 	position: absolute;
 	bottom: 0;
 
@@ -85,12 +126,10 @@ body {
 	overflow : auto;
 	display:block;
 	background-color: #e8e8e8;
-	height: 50%;
-	width: 100%;
 	padding: 10px;
-	border: 5px green;
+	border: 15px green;
 	border-style: solid;
-	font-size: 12px;
+	font-size: 42px;
 	color: #000;
 	margin: 5px;
 }
@@ -100,13 +139,11 @@ body {
 
 	overflow : auto;
 	display:block;
-	height: 50%;
-	width: 100%;
 	background-color: #e8e8e8;
 	padding: 10px;
-	border: 5px red;
+	border: 15px red;
 	border-style: solid;
-	font-size: 12px;
+	font-size: 42px;
 	color: #000;
 	margin: 5px;
 }
@@ -116,19 +153,16 @@ body {
 	overflow : auto;
 	display:block;
 	background-color: #e8e8e8;
-	height: 50%;
-	width: 100%;
 	padding: 10px;
-	border: 5px yellow;
+	border: 15px yellow;
 	border-style: solid;
-	font-size: 12px;
+	font-size: 42px;
 	color: #000;
 	margin: 5px;
 }
 
 #myEvents {
 	height:100vh;
-
 	overflow-y: scroll;
 }
 

@@ -5,7 +5,7 @@
 
 
 var server_prefix = "https://eventsppp.herokuapp.com";
-// var server_prefix = "http://localhost:5000";
+var server_prefix = "http://localhost:5000";
 currentFriendList = [];
 
 function acceptOrReject(username) {
@@ -187,9 +187,11 @@ function addMyEvents() {
 function addEvent(userName, goingStatus) {
     var event = document.createElement("div");
     var img = document.createElement("img");
+    var txt = document.createTextNode("Text text text text");
     img.src = "http://mac.h-cdn.co/assets/15/35/1440442371-screen-shot-2015-08-24-at-25213-pm.png";
     img.className = "eventImg";
     event.className = "eventStyle" + goingStatus;
+    event.appendChild(txt);
     event.appendChild(img);
     var div = document.getElementById("myEvents");
     div.appendChild(event);
