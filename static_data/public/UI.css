@@ -77,11 +77,16 @@ body {
 .bottom {
 	position: absolute;
 	bottom: 0;
+
 }
 
 .eventStyleYes {
+
+	overflow : auto;
+	display:block;
 	background-color: #e8e8e8;
-	width: 320px;
+	height: 50%;
+	width: 100%;
 	padding: 10px;
 	border: 5px green;
 	border-style: solid;
@@ -92,7 +97,11 @@ body {
 
 
 .eventStyleNo {
-	width: 320px;
+
+	overflow : auto;
+	display:block;
+	height: 50%;
+	width: 100%;
 	background-color: #e8e8e8;
 	padding: 10px;
 	border: 5px red;
@@ -104,8 +113,11 @@ body {
 
 
 .eventStyleMaybe {
+	overflow : auto;
+	display:block;
 	background-color: #e8e8e8;
-	width: 320px;
+	height: 50%;
+	width: 100%;
 	padding: 10px;
 	border: 5px yellow;
 	border-style: solid;
@@ -115,7 +127,8 @@ body {
 }
 
 #myEvents {
-	height:500px;
+	height:100vh;
+
 	overflow-y: scroll;
 }
 
@@ -127,4 +140,11 @@ input[type=text], select, textarea, input[type=password] {
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	box-sizing: border-box;
+}
+
+
+.eventImg {
+	float : right;
+	max-width:50%;
+	max-height:50%;
 }

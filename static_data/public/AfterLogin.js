@@ -3,7 +3,8 @@
  * Created by dbublil on 8/1/2017.
  */
 
-var server_prefix = "https://eventsppp.herokuapp.com";
+//https://eventsppp.herokuapp.com
+var server_prefix = "http://localhost:5000";
 currentFriendList = [];
 
 function acceptOrReject(username) {
@@ -182,10 +183,13 @@ function addMyEvents() {
     }
 }
 
-function addEvent(eventStr, str) {
+function addEvent(userName, goingStatus) {
     var event = document.createElement("div");
-    event.className = "eventStyle" + str;
-    event.innerHTML = eventStr;
+    var img = document.createElement("img");
+    img.src = "http://mac.h-cdn.co/assets/15/35/1440442371-screen-shot-2015-08-24-at-25213-pm.png";
+    img.className = "eventImg";
+    event.className = "eventStyle" + goingStatus;
+    event.appendChild(img);
     var div = document.getElementById("myEvents");
     div.appendChild(event);
 }
