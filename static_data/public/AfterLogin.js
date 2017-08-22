@@ -3,8 +3,9 @@
  * Created by dbublil on 8/1/2017.
  */
 
-//https://eventsppp.herokuapp.com
-var server_prefix = "http://localhost:5000";
+
+var server_prefix = "https://eventsppp.herokuapp.com";
+// var server_prefix = "http://localhost:5000";
 currentFriendList = [];
 
 function acceptOrReject(username) {
