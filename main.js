@@ -81,8 +81,12 @@ app.use('/',function(req,res,next){
     }
     else{
         console.log("Coockie check fail");
-        res.json({"error":"true"});
+        res.status(500).json({"error":"true"});
     }
+});
+
+app.get('/authenticate',function(req,res,next){
+    res.status(200).json({ message: 'pass' });
 });
 
 app.post('/addFriend/:friendUserName',function (req,res,next) {
@@ -97,7 +101,7 @@ app.post('/addFriend/:friendUserName',function (req,res,next) {
     res.status(200).json({ message: 'done' });
 });
 
-app.get('/friendRequests',function (req,res) {
+app.get('/friendRequests',function (req,res,next) {
     console.log("get friends Request");
 
     var cookie = req.cookies.appId;
@@ -105,6 +109,7 @@ app.get('/friendRequests',function (req,res) {
 
     res.status(200).json(usernamesToUsers[userName].friendsRequests);
 });
+
 
 app.post('/acceptFriend/:friendUserName',function (req,res,next) {
     console.log("try to ACCEPTING FRIEND");
@@ -157,6 +162,8 @@ app.post('/createPrivateEvent',function(req,res,next){
         var eventImageURL = req.body["imageURL"];
         var eventDescription = req.body["description"];
 
+        eventParticipants.push(userName);
+
         var event = {name:eventName, location:eventLocation, dateAndTime:eventDateAndTime,
             participants:eventParticipants, imageURL:eventImageURL, description:eventDescription,
             attendingUsers:[], noResponseUsers:[],notGoingUsers:[]};
@@ -195,7 +202,7 @@ app.post('/acceptEventRequest/:eventId',function (req,res,next) {
 
     if(eventIdsToEvents[eventId]){
         console.log("event was found");
-        var eventIndex = usernamesToUsers[userName].events.indexOf(eventId);
+        var eventIndex = usernamesToUsers[userName].events.indexOf(parseInt(eventId));
         if(eventIndex> -1){
             console.log("attend to event");
             changeEventStatus("attend",eventIdsToEvents[eventId],userName );
@@ -216,7 +223,7 @@ app.post('/rejectEventRequest/:eventId',function (req,res,next) {
 
     if(eventIdsToEvents[eventId]){
         console.log("event was found");
-        var eventIndex = usernamesToUsers[userName].events.indexOf(eventId);
+        var eventIndex = usernamesToUsers[userName].events.indexOf(parseInt(eventId));
         if(eventIndex> -1){
             console.log("not going to event");
             changeEventStatus("reject",eventIdsToEvents[eventId],userName );
@@ -249,16 +256,16 @@ function changeEventStatus(status, event, userName) {
     }
     else{
         console.log("not going to event");
-        var eventIndex = event.attendingUsers.indexOf(userName);
+        var eventIndex = event.notGoingUsers.indexOf(userName);
         if(!(eventIndex > -1)){
             eventIndex = event.noResponseUsers.indexOf(userName);
 
             if(eventIndex > -1){
                 event.noResponseUsers.splice(eventIndex, 1);
-                event.attendingUsers.push(userName);
+                event.notGoingUsers.push(userName);
             }else{
-                event.notGoingUsers.splice(eventIndex, 1);
-                event.attendingUsers.push(userName);
+                event.attendingUsers.splice(eventIndex, 1);
+                event.notGoingUsers.push(userName);
             }
         }
     }
@@ -273,7 +280,8 @@ app.get('/getPrivateEvent/:eventId',function(req,res,next){
 
     if (eventIdsToEvents[eventId]){
         console.log("event was found");
-        var eventIndex = usernamesToUsers[userName].events.indexOf(eventId);
+        console.log(usernamesToUsers[userName].events);
+        var eventIndex = usernamesToUsers[userName].events.indexOf(parseInt(eventId));
         if(eventIndex > -1){
             console.log("succeed to get private event");
             res.status(200).json(eventIdsToEvents[eventId]);
@@ -351,4 +359,3 @@ function addFriends2(userName){
         usernamesToUsers["" + i].friends.push(userName);
     }
 }
-

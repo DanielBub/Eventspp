@@ -8,6 +8,24 @@ var server_prefix = "https://eventsppp.herokuapp.com";
 // var server_prefix = "http://localhost:5000";
 currentFriendList = [];
 
+function authenticate() {
+    var path = "/authenticate";
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 500)
+        {
+            alert("Please log in.");
+            disconnect();
+
+        } else {
+            document.getElementById("yesPass").style.visibility = "visible";
+
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
+}
+
 function acceptOrReject(username) {
     return "    <button class=\"myButton\" onclick=\"acceptFriend(\'" + username + "\')\">Accept</button>"
 }
@@ -25,7 +43,7 @@ function goHome() {
 }
 
 function disconnect() {
-    goToPage("RealIndex.html");
+    goToPage("Home.html");
 }
 function acceptFriend(username) {
     alert("ACCEPTING");
