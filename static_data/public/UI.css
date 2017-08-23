@@ -181,8 +181,13 @@ input[type=text], select, textarea, input[type=password] {
 }
 
 
+.container {
+	width: 500px;
+	height: 300px;
+	float:right;
+}
 .eventImg {
 	float : right;
-	max-width:50%;
-	max-height:50%;
+	width: auto;
+	height: 100%;
 }

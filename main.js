@@ -159,14 +159,15 @@ app.post('/createPrivateEvent',function(req,res,next){
         var eventLocation = req.body["location"];
         var eventDateAndTime = req.body["dateAndTime"];
         var eventParticipants = req.body["participants"];
-        var eventImageURL = req.body["imageURL"];
+        var eventImageURL = req.body["imgURL"];
         var eventDescription = req.body["description"];
 
         eventParticipants.push(userName);
 
         var event = {name:eventName, location:eventLocation, dateAndTime:eventDateAndTime,
-            participants:eventParticipants, imageURL:eventImageURL, description:eventDescription,
+            participants:eventParticipants, imgURL:eventImageURL, description:eventDescription,
             attendingUsers:[], noResponseUsers:[],notGoingUsers:[]};
+
 
         eventIdsToEvents[currentEventID] = event;
         event.attendingUsers.push(userName);
@@ -307,6 +308,7 @@ app.get('/getEvents',function(req,res,next){
 
         for(var i = 0; i<usernamesToUsers[userName].events.length ;i++){
             userEvents.push(eventIdsToEvents[usernamesToUsers[userName].events[i]]);
+            console.log(eventIdsToEvents[usernamesToUsers[userName].events[i]]);
         }
         console.log("retrun all events");
         res.status(200).json(userEvents);
