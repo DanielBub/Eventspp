@@ -91,6 +91,7 @@ function refreshFriendRequests() {
 }
 
 setInterval(refreshFriendRequests, 1000);
+
 function sendFriendRequest() {
     var user = document.getElementById("friendRequestName").value;
     var path = "/addFriend/" + user;
@@ -186,7 +187,7 @@ function addMyEvents() {
     for (var i =0; i < 25; i++) {
 
         var j = Math.floor(Math.random() * 3);
-        // addMockEvent(i,strarr[j]);
+        addMockEvent(i,strarr[j]);
     }
 
     var path = "/getEvents";
