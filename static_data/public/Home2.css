@@ -7,7 +7,7 @@ html {
 }
 
 body {
-    background: #c1bdba;
+    background: #1e0193;
     font-family: 'Titillium Web', sans-serif;
 }
 
@@ -119,6 +119,8 @@ input, textarea {
     -webkit-transition: border-color .25s ease, box-shadow .25s ease;
     transition: border-color .25s ease, box-shadow .25s ease;
 }
+
+
 input:focus, textarea:focus {
     outline: 0;
     border-color: #100b38;
