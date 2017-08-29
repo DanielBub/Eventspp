@@ -9,13 +9,13 @@
             <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
 
-
+            <script src="Home2.js"></script>
             <link rel="stylesheet" href="Home2.css">
 
 
         </head>
 
-<body>
+<body background="http://media.idownloadblog.com/wp-content/uploads/2013/08/iPhone-5-Blue-grunge-Max_Kas.jpg">
 <div class="form">
 
     <ul class="tab-group">
@@ -27,21 +27,21 @@
         <div id="signup">
             <h1>Sign Up</h1>
 
-            <form action="/" method="post">
+            <!--<form action="/register" method="post">-->
 
                 <div class="top-row">
                     <div class="field-wrap">
                         <label>
                             Username<span class="req">*</span>
                         </label>
-                        <input required autocomplete="off" />
+                        <input id ="username" required autocomplete="off" />
                     </div>
 
                     <div class="field-wrap">
                         <label>
                             Password<span class="req">*</span>
                         </label>
-                        <input type="password" required autocomplete="off"/>
+                        <input id="password" type="password" required autocomplete="off"/>
                     </div>
                 </div>
 
@@ -49,13 +49,13 @@
                     <label>
                         Email Address<span class="req">*</span>
                     </label>
-                    <input type="email"required autocomplete="off"/>
+                    <input id="email" type="email"required autocomplete="off"/>
                 </div>
 
                 <span class="bday"> Birthday*</span>
                 <div class="field-wrap">
 
-                    <input type="date" required autocomplete="off"/>
+                    <input id="birthday" type="date" required autocomplete="off"/>
 
                 </div>
 
@@ -63,8 +63,8 @@
 
                     <span class="bday"> Sex*
                      <ul class="tab-group">
-                         <li class="tab active"><a href="#signup">Male</a></li>
-                             <li class="tab"><a href="#signup">Female</a></li>
+                         <li class="tab active" onclick="male()"><a href="#signup">Male</a></li>
+                             <li class="tab" onclick="female()"><a href="#signup">Female</a></li>
                      </ul>
                     </span>
 
@@ -93,35 +93,35 @@
                 </script>
                 <img src="" height="200">
 
-                <button type="submit" class="button button-block"/>Get Started</button>
+                <button onclick="signup()" class="button button-block">Get Started</button>
 
-            </form>
+            <!--</form>-->
 
         </div>
 
         <div id="login">
             <h1>Welcome Back!</h1>
 
-            <form action="/" method="post">
+            <!--<form action="/login" method="post">-->
 
                 <div class="field-wrap">
                     <label>
                         Username<span class="req">*</span>
                     </label>
-                    <input type="email"required autocomplete="off"/>
+                    <input id="login_user" required autocomplete="off"/>
                 </div>
 
                 <div class="field-wrap">
                     <label>
                         Password<span class="req">*</span>
                     </label>
-                    <input type="password"required autocomplete="off"/>
+                    <input type="password" id="login_password" required autocomplete="off"/>
                 </div>
 
 
-                <button class="button button-block"/>Log In</button>
+                <button onclick="login()" class="button button-block">Log In</button>
 
-            </form>
+            <!--</form>-->
 
         </div>
 
