@@ -320,6 +320,35 @@ $(document).click(function(e) {
     }
 });
 
+$(document).on("touchstart", function(e) {
+    if (isEvent(e.target.className)) {
+        var eventId =  e.target.id;
+
+        var path = "/getEvent/" + eventId;
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if(this.readyState == 4 && this.status === 200)
+            {
+                try {
+                    alert("hey");
+                    var event = JSON.parse(this.responseText);
+                    document.getElementById("currentEvent").innerHTML = presentEvent(event);
+                    document.getElementById("currentEvent").style.display = "block";
+                    document.getElementById("myEvents").style.display = "none";
+                } catch(err) {
+                    alert(err);
+                }
+            } else if(this.readyState == 4 && this.status === 500)
+            {
+                alert("Server error getting events");
+            }
+        };
+        request.open("GET", server_prefix + path, true );
+        request.send();
+    }
+});
+
+
 function presentEvent(event) {
     var str = event.name + "<br>" +event.location + "<br>" +event.dateAndTime + "<br>" +event.participants +
         "<br><img src=\'" +event.imgURL + "\'><br>" + event.description + "<br>";
