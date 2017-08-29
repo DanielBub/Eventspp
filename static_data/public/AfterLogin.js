@@ -43,8 +43,9 @@ function goHome() {
 }
 
 function disconnect() {
-    goToPage("Home.html");
+    goToPage("Home2.html");
 }
+
 function acceptFriend(username) {
     // alert("ACCEPTING");
     var path = "/acceptFriend/" + username;
@@ -61,7 +62,32 @@ function acceptFriend(username) {
     };
     request.open("POST", server_prefix + path, true );
     request.send();
+}
 
+function fillCategories() {
+    var path = "/getCategories";
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            var arr = JSON.parse(this.responseText);
+            for (var i = 0; i < arr.length; i++) {
+                addCategoryToSelect(arr[i]);
+            }
+        } else if(this.readyState == 4 && this.status === 500)
+        {
+            alert("Server error getting friends");
+        }
+    };
+    request.open("GET", server_prefix + path, true );
+    request.send();
+}
+
+function addCategoryToSelect(str) {
+    var x = document.getElementById("publicEventCategory");
+    var option = document.createElement("option");
+    option.text = str;
+    x.add(option);
 }
 
 function refreshFriendRequests() {
@@ -144,6 +170,11 @@ function addFriendToSelect(str) {
     var option = document.createElement("option");
     option.text = str;
     x.add(option);
+
+    var x = document.getElementById("publicEventfriendSelect");
+    var option = document.createElement("option");
+    option.text = str;
+    x.add(option);
 }
 function getSelectValue(id) {
     var e = document.getElementById(id);
@@ -177,6 +208,37 @@ function eventer() {
     request.send();
 }
 
+function publicEventer() {
+        var eventObj = {
+            "name" : getDocValue("publicEventName"),
+            "category": getSelectValue("publicEventCategory"),
+            "location" : getDocValue("publicEventLoc"),
+            "dateAndTime" : getDocValue("publicEventDate"),
+            "imgURL" : getDocValue("publicEventPic"),
+            "description" : getDocValue("publicEventDescription"),
+            "participants" : currentFriendList,
+            "maxAge": getDocValue("publicMaxAge"),
+            "minAge": getDocValue("publicMinAge"),
+            "maxParticipants" : getDocValue("publicEventMaxPartici")
+        };
+        var path = "/createPublicEvent";
+
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if(this.readyState == 4 && this.status === 200)
+            {
+                alert(this.responseText);
+            } else if(this.readyState == 4 && this.status === 500)
+            {
+                alert("Invalid username");
+            }
+        };
+        request.open("POST", server_prefix + path, true );
+        request.setRequestHeader("Content-Type", "application/json");
+        request.send(JSON.stringify(eventObj));
+        request.send();
+}
+
 function getDocValue(id) {
     return document.getElementById(id).value;
 }
@@ -187,7 +249,7 @@ function addMyEvents() {
     for (var i =0; i < 25; i++) {
 
         var j = Math.floor(Math.random() * 3);
-        addMockEvent(i,strarr[j]);
+        // addMockEvent(i,strarr[j]);
     }
 
     var path = "/getEvents";
@@ -221,12 +283,88 @@ function addEvent(event, goingStatus) {
     container.className = "container";
     img.src = event.imgURL || "http://mac.h-cdn.co/assets/15/35/1440442371-screen-shot-2015-08-24-at-25213-pm.png";
     img.className = "eventImg";
-    eventDiv.className = "eventStyle" + goingStatus;
+    eventDiv.className = "eventStyle" + event.status;
+    eventDiv.id = event.id;
     container.appendChild(img);
     eventDiv.appendChild(container);
     textNodeWithSpaces(eventDiv,strings);
     var mainEventsDiv = document.getElementById("myEvents");
     mainEventsDiv.appendChild(eventDiv);
+}
+
+$(document).click(function(e) {
+    if (isEvent(e.target.className)) {
+        var eventId =  e.target.id;
+
+        var path = "/getEvent/" + eventId;
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if(this.readyState == 4 && this.status === 200)
+            {
+                try {
+                    alert("hey");
+                    var event = JSON.parse(this.responseText);
+                    document.getElementById("currentEvent").innerHTML = presentEvent(event);
+                    document.getElementById("currentEvent").style.display = "block";
+                    document.getElementById("myEvents").style.display = "none";
+                } catch(err) {
+                    alert(err);
+                }
+            } else if(this.readyState == 4 && this.status === 500)
+            {
+                alert("Server error getting events");
+            }
+        };
+        request.open("GET", server_prefix + path, true );
+        request.send();
+    }
+});
+
+function presentEvent(event) {
+    var str = event.name + "<br>" +event.location + "<br>" +event.dateAndTime + "<br>" +event.participants +
+        "<br><img src=\'" +event.imgURL + "\'><br>" + event.description + "<br>";
+    str += "<button onclick=\"acceptEvent(" + event.id + ")\"> Accept </button>";
+    str += "<button onclick=\"rejectEvent(" + event.id + ")\"> Reject </button>";
+    alert(str);
+    return str;
+}
+
+function acceptEvent(id) {
+    var path = "/acceptEventRequest/" + id;
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            alert("event acccepted");
+        } else if (this.readyState == 4 && this.status === 500){
+            alert("error at connecting server")
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
+
+}
+
+function rejectEvent(id) {
+    var path = "/rejectEventRequest/" + id;
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState === 4 && this.status === 200)
+        {
+            alert("event rejected");
+        } else if (this.readyState === 4 && this.status === 500) {
+            alert("error at connecting server")
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
+}
+function isEvent(str) {
+    return (str === "eventStyleNo" ||  str === "eventStyleYes" || str === "eventStyleMaybe");
+}
+
+function shit() {
+    alert("shit!");
 }
 
 function textNodeWithSpaces(div, strings) {

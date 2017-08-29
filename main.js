@@ -164,9 +164,17 @@ app.post('/addFriend/:friendUserName',function (req,res,next) {
     var friendUserName = req.params.friendUserName;
     var friendUser = userNamesToUsers[friendUserName];
 
-    if(friendUser){
-        friendUser.friendsRequests.push(userName);
-        res.status(200).json({ message: userName + ' send friend request to ' + friendUserName});
+    if (friendUser){
+        var friendRequestIndex = friendUser.friendsRequests.indexOf(userName);
+        var friendIndex = friendUser.friends.indexOf(userName);
+
+        if (friendRequestIndex > -1 && friendIndex > -1){
+            friendUser.friendsRequests.push(userName);
+            res.status(200).json({ message: userName + ' send friend request to ' + friendUserName});
+        }
+        else{
+            res.status(500).json({ error: 'Friend request has already sent to ' + friendUserName });
+        }
     }
     else{
         res.status(500).json({ error: friendUserName + ' does not exist' });
@@ -220,7 +228,7 @@ app.post('/createPrivateEvent',function(req,res,next){
     eventParticipants.push(userName);
     var event = {name: eventName, location: eventLocation, dateAndTime: eventDateAndTime, creator: userName,
         participants: eventParticipants, imgURL: eventImageURL, description: eventDescription,
-        attendingUsers: [userName], noResponseUsers: [],notGoingUsers: [], type: "Private"};
+        attendingUsers: [userName], noResponseUsers: [],notGoingUsers: [], type: "Private", id: currentEventID};
 
     registerParticipants(eventParticipants,currentEventID, userName, event);
     eventIdsToEvents[currentEventID] = event;
@@ -250,7 +258,7 @@ app.post('/createPublicEvent',function(req,res,next){
         dateAndTime: eventDateAndTime, maxAge: eventMaxAge, minAge: eventMinAge,
         maxParticipants: eventMaxParticipants,imgURL: eventImageURL, description: eventDescription,
         participants: eventParticipants, attendingUsers: [userName], noResponseUsers: [], notGoingUsers: [],
-        requestToParticipantUsers: [], type: "Public"};
+        requestToParticipantUsers: [], type: "Public", id: currentEventID};
 
     registerParticipants(eventParticipants,currentEventID, userName, event);
     eventIdsToEvents[currentEventID] = event;
@@ -363,7 +371,7 @@ app.get('/getEvent/:eventId',function(req,res,next){
             console.log("succeed to get private event");
             var event = eventIdsToEvents[eventId];
             var eventStatus = getStatus(event,userName);
-            event[status] = eventStatus;
+            event["status"] = eventStatus;
             res.status(200).json(event);
         }
         else{
@@ -440,13 +448,13 @@ function getStatus(event,userName){
 
     if(event.participants.indexOf(userName) > -1){
         if(event.attendingUsers.indexOf(userName) > -1){
-            status = "Attending";
+            status = "Yes";
         }
         else if(event.noResponseUsers.indexOf(userName) > -1){
-            status = "NotResponded";
+            status = "Maybe";
         }
         else if(event.notGoingUsers.indexOf(userName) > -1){
-            status = "NotGoing";
+            status = "No";
         }
         else{
             status = "Not part of the event";

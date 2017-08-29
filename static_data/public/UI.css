@@ -11,7 +11,7 @@ body {margin:0;}
 #yesPass {
     visibility: hidden;
 }
-ul {
+.navbarUl {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
@@ -22,7 +22,7 @@ ul {
 	width: 100%;
 }
 
-li {
+.navbarLi {
 	font-size: 200%;
 	float: left;
 	width: 25%;
@@ -115,7 +115,7 @@ body {
 
 .bottomwrap {
 	bottom: 0;
-	heigh: 10vh;
+	height: 10vh;
 }
 
 .bottom {

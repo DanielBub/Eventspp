@@ -23,56 +23,18 @@
     <div id="myEvents">
 
     </div>
+    <br><br><br><br>
     <script> addMyEvents();</script>
 
+    <div id="currentEvent" style="display:none">
 
+    </div>
 
-    <script type="text/jsx">
-        class Clock extends React.Component {
-            constructor(props) {
-                super(props);
-                this.state = {date: new Date()};
-            }
-
-            componentDidMount() {
-                this.timerID = setInterval(
-                    () => this.tick(),
-                    1000
-                );
-            }
-
-            componentWillUnmount() {
-                clearInterval(this.timerID);
-            }
-
-            tick() {
-                this.setState({
-                    date: new Date()
-                });
-            }
-
-            render() {
-                return (
-                        <div>
-                            <h2>It is {this.state.date.toLocaleTimeString()}.</h2>
-                        </div>
-                );
-            }
-        }
-
-        React.render(
-                <Clock />,
-            document.getElementById('test')
-        );
-
-    </script>
-
-
-    <ul>
-        <li><a class="active" href="AfterLogin.html">Home</a></li>
-        <li><a  href="Friends.html">Friend Zone</a></li>
-        <li><a href="Events.html">Create Event</a></li>
-        <li><a href="Home2.html">Log Off</a></li>
+    <ul class="navbarUl">
+        <li class="navbarLi"><a class="active" href="AfterLogin.html">Home</a></li>
+        <li class="navbarLi"><a href="Friends.html">Friend Zone</a></li>
+        <li class="navbarLi"><a  href="Events.html">Create Event</a></li>
+        <li class="navbarLi"><a href="Home2.html">Log Off</a></li>
     </ul>
 </div>
 </body>

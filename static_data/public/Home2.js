@@ -64,6 +64,21 @@ function shit() {
     alert("shit");
 }
 
+function hidePrivate() {
+    document.getElementById("private").style.display = "none";
+    document.getElementById("privateLi").className = "tab";
+    document.getElementById("publicLi").className = "tab active";
+    document.getElementById("public").style.display = "block";
+}
+
+function hidePublic() {
+    document.getElementById("public").style.display = "none";
+    document.getElementById("publicLi").className = "tab";
+    document.getElementById("privateLi").className = "tab active";
+    document.getElementById("private").style.display = "block";
+}
+
+
 function login() {
         var user = document.getElementById("login_user").value;
         var password = document.getElementById("login_password").value;
