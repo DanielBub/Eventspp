@@ -4,7 +4,7 @@
  */
 
 
-var server_prefix = "https://eventsppp.herokuapp.com";
+var server_prefix = "https://eventspp.herokuapp.com";
 // var server_prefix = "http://localhost:5000";
 currentFriendList = [];
 
