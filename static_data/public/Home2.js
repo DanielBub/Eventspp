@@ -1,11 +1,17 @@
-var isBulbul = true;
+
+var server_prefix = "https://eventspp.herokuapp.com";
+// var server_prefix = "http://localhost:5000";
+var current_user = "";
+
+
+var isMale = true;
 
 function male() {
-    isBulbul = true;
+    isMale = true;
 }
 
 function female() {
-    isBulbul = false;
+    isMale = false;
 }
 
 $('.form').find('input, textarea').on('keyup blur focus', function (e) {
@@ -51,10 +57,6 @@ $('.tab a').on('click', function (e) {
     $(target).fadeIn(600);
 
 });
-
-var server_prefix = "https://eventspp.herokuapp.com";
-// var server_prefix = "http://localhost:5000";
-var current_user = "";
 
 function moveToAfterLogin() {
     window.location.href = server_prefix + "/public/AfterLogin.html";
@@ -110,7 +112,7 @@ function signup() {
             password: document.getElementById("password").value,
             email: document.getElementById("email").value,
             birthday: document.getElementById("birthday").value,
-            sex : isBulbul? "male" : "female"
+            sex : isMale? "male" : "female"
         };
         var path = "/register";
         var request = new XMLHttpRequest();

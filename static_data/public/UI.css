@@ -25,7 +25,7 @@ body {margin:0;}
 .navbarLi {
 	font-size: 200%;
 	float: left;
-	width: 25%;
+	width: 20%;
 }
 
 li a {
@@ -171,7 +171,7 @@ body {
 }
 
 input[type=text], select, textarea, input[type=password] {
-	width: 100%;
+	width: 40%;
 	padding: 12px 20px;
 	margin: 8px 0;
 	display: inline-block;

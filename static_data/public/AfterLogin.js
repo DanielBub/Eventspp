@@ -129,7 +129,7 @@ function sendFriendRequest() {
             alert("Friend request to " + user + " sent.");
         } else if(this.readyState == 4 && this.status === 500)
         {
-            alert("Invalid username");
+            alert(this.responseText);
         }
     };
     request.open("POST", server_prefix + path, true );
@@ -260,7 +260,7 @@ function addMyEvents() {
             var arr = JSON.parse(this.responseText);
             alert("you have " + arr.length + " new event(s)");
             for (var i = 0; i < arr.length; i++) {
-                addEvent(arr[i], "Yes");
+                addEvent(arr[i], "myEvents");
             }
         } else if(this.readyState == 4 && this.status === 500)
         {
@@ -274,7 +274,7 @@ function addMyEvents() {
 
 }
 
-function addEvent(event, goingStatus) {
+function addEvent(event, divName) {
     var eventDiv = document.createElement("div");
     var img = document.createElement("img");
     var container = document.createElement("div");
@@ -288,7 +288,7 @@ function addEvent(event, goingStatus) {
     container.appendChild(img);
     eventDiv.appendChild(container);
     textNodeWithSpaces(eventDiv,strings);
-    var mainEventsDiv = document.getElementById("myEvents");
+    var mainEventsDiv = document.getElementById(divName);
     mainEventsDiv.appendChild(eventDiv);
 }
 
@@ -306,58 +306,55 @@ $(document).click(function(e) {
                     var event = JSON.parse(this.responseText);
                     document.getElementById("currentEvent").innerHTML = presentEvent(event);
                     document.getElementById("currentEvent").style.display = "block";
-                    document.getElementById("myEvents").style.display = "none";
+                    if (document.getElementById("myEvents")) {
+                        document.getElementById("myEvents").style.display = "none";
+                    } else {
+                        document.getElementById("myPublicEvents").style.display = "none";
+                    }
                 } catch(err) {
                     alert(err);
                 }
             } else if(this.readyState == 4 && this.status === 500)
             {
-                alert("Server error getting events");
+                alert(this.responseText);
             }
         };
         request.open("GET", server_prefix + path, true );
         request.send();
     }
 });
-
-$(document).on("touchstart", function(e) {
-    if (isEvent(e.target.className)) {
-        var eventId =  e.target.id;
-
-        var path = "/getEvent/" + eventId;
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function () {
-            if(this.readyState == 4 && this.status === 200)
-            {
-                try {
-                    alert("hey");
-                    var event = JSON.parse(this.responseText);
-                    document.getElementById("currentEvent").innerHTML = presentEvent(event);
-                    document.getElementById("currentEvent").style.display = "block";
-                    document.getElementById("myEvents").style.display = "none";
-                } catch(err) {
-                    alert(err);
-                }
-            } else if(this.readyState == 4 && this.status === 500)
-            {
-                alert("Server error getting events");
-            }
-        };
-        request.open("GET", server_prefix + path, true );
-        request.send();
-    }
-});
-
 
 function presentEvent(event) {
-    var str = event.name + "<br>" +event.location + "<br>" +event.dateAndTime + "<br>" +event.participants +
-        "<br><img src=\'" +event.imgURL + "\'><br>" + event.description + "<br>";
-    str += "<button onclick=\"acceptEvent(" + event.id + ")\"> Accept </button>";
-    str += "<button onclick=\"rejectEvent(" + event.id + ")\"> Reject </button>";
-    alert(str);
-    return str;
+    if (event.type === "Private") {
+        var str = event.name + "<br>" + event.location + "<br>" + event.dateAndTime + "<br>" + event.participants +
+            "<br><img src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
+        str += "<button class = \'mybutton\' onclick=\"acceptEvent(" + event.id + ")\"> Accept </button>";
+        str += "<button class = \'mybutton\' onclick=\"rejectEvent(" + event.id + ")\"> Reject </button>";
+        alert(str);
+        return str;
+    } else {
+        var str = event.name + "<br>" + event.location + "<br>" + event.dateAndTime + "<br>" + event.participants +
+            "<br><img src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
+        str += "<button class = \"mybutton\" onclick=\"askToJoinEvent(" + event.id + ")\"> Ask to join </button>";
+        return str;
+    }
 }
 
+function askToJoinEvent(id) {
+    var path = "/requestToParticipantInPublicEvent/" + id;
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            alert("Asked to join event");
+        } else if (this.readyState == 4 && this.status === 500) {
+            alert(this.responseText)
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
+
+}
 function acceptEvent(id) {
     var path = "/acceptEventRequest/" + id;
     var request = new XMLHttpRequest();
@@ -365,8 +362,8 @@ function acceptEvent(id) {
         if(this.readyState == 4 && this.status === 200)
         {
             alert("event acccepted");
-        } else if (this.readyState == 4 && this.status === 500){
-            alert("error at connecting server")
+        } else if (this.readyState == 4 && this.status === 500) {
+            alert(this.responseText["error"])
         }
     };
     request.open("POST", server_prefix + path, true );
@@ -378,11 +375,11 @@ function rejectEvent(id) {
     var path = "/rejectEventRequest/" + id;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
-        if(this.readyState === 4 && this.status === 200)
+        if(this.readyState == 4 && this.status === 200)
         {
-            alert("event rejected");
-        } else if (this.readyState === 4 && this.status === 500) {
-            alert("error at connecting server")
+            alert("event acccepted");
+        } else if (this.readyState == 4 && this.status === 500) {
+            alert(this.responseText["error"])
         }
     };
     request.open("POST", server_prefix + path, true );

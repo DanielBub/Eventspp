@@ -168,7 +168,7 @@ app.post('/addFriend/:friendUserName',function (req,res,next) {
         var friendRequestIndex = friendUser.friendsRequests.indexOf(userName);
         var friendIndex = friendUser.friends.indexOf(userName);
 
-        if (friendRequestIndex > -1 && friendIndex > -1){
+        if (friendRequestIndex === -1 && friendIndex === -1){
             friendUser.friendsRequests.push(userName);
             res.status(200).json({ message: userName + ' send friend request to ' + friendUserName});
         }
@@ -456,6 +456,12 @@ function getStatus(event,userName){
         else if(event.notGoingUsers.indexOf(userName) > -1){
             status = "No";
         }
+        else if(event.type === "Public"){
+            if (event.requestToParticipantUsers.indexOf(userName) > -1)
+            {
+
+            }
+        }
         else{
             status = "Not part of the event";
         }
@@ -501,8 +507,10 @@ app.get('/findPublicEvents/:eventCategory', function(req, res, next) {
         var event = eventIdsToEvents[eventId];
 
         if (event.type === "Public" ){
+            var userNameIndex = event.participants.indexOf(userName);
+
             if (eventCategory === event.category && event.participants.length < event.maxParticipants &&
-                myAge <= event.maxAge && myAge >= event.minAge){
+                myAge <= event.maxAge && myAge >= event.minAge &&  userNameIndex === -1){
                 publicEvents.push(event);
             }
         }
