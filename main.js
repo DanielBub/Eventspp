@@ -80,7 +80,6 @@ app.post('/login', function(req, res,next) {
             user["age"] = calculateMyAge(user.birthday);
             currentCookie++;
             res.cookie('appId', cookie, { maxAge: maxCookieTime});
-            // res.status(200).json({ message: 'The user loggedIn' });
             console.log("User loggedIn");
             res.redirect("/public/AfterLogin.html")
         }
@@ -131,21 +130,45 @@ function calculateMyAge(birthday) {
 //     }
 // });
 
-app.use('/',function(req,res,next){
-    console.log("Cookie check ");
-    var cookie = req.cookies.appId;
-    var userName = cookiesToUserNames[cookie];
+app.use('/authenticate',function(req,res,next){
+    console.log("Authenticate");
+    var isCookieCheckPass = cookieCheck(req);
 
-    if (userName) {
-        console.log("Cookie check pass");
-        res.cookie('appId', cookie, { maxAge: maxCookieTime });
+    if (isCookieCheckPass) {
+        res.status(200).json({ message: 'Pass' });
+    }
+    else{
+        console.log("Cookie check fail1");
+        res.status(500).json({ error: 'Cookie check fail' });
+    }
+
+});
+
+app.use('/',function(req,res,next){
+    var isCookieCheckPass = cookieCheck(req);
+
+    if (isCookieCheckPass) {
+        //console.log("Cookie check pass");
         next();
     }
     else{
-        console.log("Cookie check fail");
-        res.status(500).json({ error: 'Cookie check fail' });
+        //console.log("Cookie check fail");
+        res.redirect("/public/Home2.html")
     }
 });
+
+function cookieCheck(req){
+    //console.log("Cookie check ");
+    var cookie = req.cookies.appId;
+    var userName = cookiesToUserNames[cookie];
+    var isCookieCheckPass = false;
+
+    if (userName) {
+        isCookieCheckPass = true;
+    }
+
+    return isCookieCheckPass;
+}
 
 function getUserName(req){
     var cookie = req.cookies.appId;
@@ -153,10 +176,6 @@ function getUserName(req){
 
     return userName;
 }
-
-app.get('/authenticate',function(req,res,next){
-    res.status(200).json({ message: 'Pass' });
-});
 
 app.post('/addFriend/:friendUserName',function (req,res,next) {
     console.log("Trying to add friend");
@@ -182,7 +201,7 @@ app.post('/addFriend/:friendUserName',function (req,res,next) {
 });
 
 app.get('/friendRequests',function (req,res,next) {
-    console.log("get friends Request");
+    //console.log("get friends Request");
     var userName = getUserName(req);
 
     res.status(200).json(userNamesToUsers[userName].friendsRequests);
@@ -367,11 +386,15 @@ app.get('/getEvent/:eventId',function(req,res,next){
     if (eventIdsToEvents[eventId]){
         console.log("event was found");
         var eventIndex = userNamesToUsers[userName].events.indexOf(parseInt(eventId));
-        if(eventIndex > -1){
+        var event = eventIdsToEvents[eventId];
+        var isRelevantPublicEvent = checkIfRelevantPublicEvent(event, userName);
+
+        if(eventIndex > -1 || isRelevantPublicEvent){
             console.log("succeed to get private event");
-            var event = eventIdsToEvents[eventId];
             var eventStatus = getStatus(event,userName);
+
             event["status"] = eventStatus;
+            event["isAdmin"] = event.creator === userName;
             res.status(200).json(event);
         }
         else{
@@ -385,89 +408,34 @@ app.get('/getEvent/:eventId',function(req,res,next){
     }
 });
 
-// app.get('/getPublicEvent/:eventId',function(req,res,next){
-//     console.log("get public event");
-//     getEvent(req, res);
-//
-//     // delete
-//     var userName = getUserName(req);
-//     var eventId = req.params.eventId;
-//
-//     if (eventIdsToEvents[eventId]){
-//         console.log("event was found");
-//         console.log(userNamesToUsers[userName].events);
-//         var eventIndex = userNamesToUsers[userName].events.indexOf(parseInt(eventId));
-//         if(eventIndex > -1){
-//             console.log("succeed to get public event");
-//             var event = eventIdsToEvents[eventId];
-//
-//             // only in private event
-//             //var eventStatus = getStatus(event,userName);
-//             //event[status] = eventStatus;
-//             res.status(200).json(event);
-//         }else{
-//             console.log("the user does not has this event");
-//             res.status(500).json({error:"the user does not has this event"});
-//         }
-//     }else{
-//         console.log("event was not found");
-//         res.status(500).json({error: "event does not found"});
-//     }
-// });
-
-// function getEvent(res,req){
-//     var userName = getUserName(req);
-//     var eventId = req.params.eventId;
-//
-//     if (eventIdsToEvents[eventId]){
-//         console.log("event was found");
-//         //console.log(userNamesToUsers[userName].events);
-//         var eventIndex = userNamesToUsers[userName].events.indexOf(parseInt(eventId));
-//         if(eventIndex > -1){
-//             console.log("I participants in the event");
-//             var event = eventIdsToEvents[eventId];
-//
-//             if(event.type === "Private"){
-//                 var eventStatus = getStatus(event,userName);
-//                 event[status] = eventStatus;
-//             }
-//
-//             res.status(200).json(event);
-//         }else{
-//             console.log("the user does not has this event");
-//             res.status(500).json({error:"the user does not has this event"});
-//         }
-//     }else{
-//         console.log("event was not found");
-//         res.status(500).json({error: "event does not found"});
-//     }
-// }
-
 function getStatus(event,userName){
+    console.log("getStatus");
+    console.log("event");
     var status;
 
-    if(event.participants.indexOf(userName) > -1){
-        if(event.attendingUsers.indexOf(userName) > -1){
+    if (event.participants.indexOf(userName) > -1){
+        if (event.attendingUsers.indexOf(userName) > -1){
             status = "Yes";
         }
-        else if(event.noResponseUsers.indexOf(userName) > -1){
+        else if (event.noResponseUsers.indexOf(userName) > -1){
             status = "Maybe";
         }
-        else if(event.notGoingUsers.indexOf(userName) > -1){
+        else if (event.notGoingUsers.indexOf(userName) > -1){
             status = "No";
         }
-        else if(event.type === "Public"){
-            if (event.requestToParticipantUsers.indexOf(userName) > -1)
-            {
-
+        else if (event.type === "Public"){
+            console.log("Public!!!")
+            if (event.requestToParticipantUsers.indexOf(userName) > -1){
+                console.log("Pending!!!!!!")
+                status = "Pending";
             }
         }
         else{
-            status = "Not part of the event";
+            status = "Not part of the event1";
         }
     }
     else{
-        status = "Not part of the event";
+        status = "Not part of the event2";
     }
 
     return status;
@@ -483,6 +451,7 @@ app.get('/getEvents',function(req,res,next){
         var event = eventIdsToEvents[userNamesToUsers[userName].events[i]];
         var eventStatus = getStatus(event,userName);
         event["status"] = eventStatus;
+        event["isAdmin"] = event.creator === userName;
         userEvents.push(event);
         console.log(event);
     }
@@ -499,25 +468,39 @@ app.get('/getCategories', function (req, res, next) {
 app.get('/findPublicEvents/:eventCategory', function(req, res, next) {
     console.log("Find public Events");
     var userName = getUserName(req);
-    var myAge = userNamesToUsers[userName].age;
     var eventCategory = req.params.eventCategory;
     var publicEvents = [];
 
     for (var eventId in eventIdsToEvents) {
         var event = eventIdsToEvents[eventId];
+        var isRelevantPublicEvent = checkIfRelevantPublicEvent(event, userName, eventCategory);
 
-        if (event.type === "Public" ){
-            var userNameIndex = event.participants.indexOf(userName);
-
-            if (eventCategory === event.category && event.participants.length < event.maxParticipants &&
-                myAge <= event.maxAge && myAge >= event.minAge &&  userNameIndex === -1){
-                publicEvents.push(event);
-            }
+        if (isRelevantPublicEvent)
+        {
+            publicEvents.push(event);
         }
     }
 
     res.status(200).json(publicEvents);
 });
+
+function checkIfRelevantPublicEvent(event, userName, eventCategory)
+{
+    console.log(event);
+    var isRelevantPublicEvent = false;
+    var myAge = userNamesToUsers[userName].age;
+
+    if (event.type === "Public" ){
+        var userNameIndex = event.participants.indexOf(userName);
+
+        if ((eventCategory === event.category || !eventCategory) && event.participants.length < event.maxParticipants &&
+            myAge <= event.maxAge && myAge >= event.minAge && userNameIndex === -1){
+            isRelevantPublicEvent = true;
+        }
+    }
+
+    return isRelevantPublicEvent;
+}
 
 app.get('/getUserData', function (req, res, next) {
     console.log("Get User");
@@ -567,25 +550,25 @@ app.post('/acceptParticipationRequest/:eventId/:pendingUserName', function (req,
         if (event.creator === userName){
             var pendingUserIndex = event.requestToParticipantUsers.indexOf(pendingUserName);
 
-            if (!(pendingUserIndex > -1)){
+            if (pendingUserIndex > -1){
                 if (event.attendingUsers.length < event.maxParticipants){
                     event.attendingUsers.push(pendingUserName);
                     event.requestToParticipantUsers.splice(pendingUserIndex, 1);
                 }
                 else {
-                    res.status(200).json({ error: "The event is full" });
+                    res.status(500).json({ error: "The event is full" });
                 }
             }
             else{
-                res.status(200).json({ error: pendingUserName + " does not ask to join to this event" });
+                res.status(500).json({ error: pendingUserName + " does not ask to join to this event" });
             }
         }
         else{
-            res.status(200).json({ error: "You are not the creator of the event" });
+            res.status(500).json({ error: "You are not the creator of the event" });
         }
     }
     else{
-        res.status(200).json({ error: "Event or pending user name does not exist" });
+        res.status(500).json({ error: "Event or pending user name does not exist" });
     }
 });
 
@@ -600,24 +583,37 @@ app.post('/rejectParticipationRequest/:eventId/:pendingUserName', function (req,
         if (event.creator === userName){
             var pendingUserIndex = event.requestToParticipantUsers.indexOf(pendingUserName);
 
-            if (!(pendingUserIndex > -1)){
+            if (pendingUserIndex > -1){
                 event.requestToParticipantUsers.splice(pendingUserIndex, 1);
                 pendingUserIndex = event.participants.indexOf(pendingUserName);
                 event.participants.splice(pendingUserIndex, 1);
             }
             else{
-                res.status(200).json({ error: pendingUserName + " does not ask to join to this event" });
+                res.status(500).json({ error: pendingUserName + " does not ask to join to this event" });
             }
         }
         else{
-            res.status(200).json({ error: "You are not the creator of the event" });
+            res.status(500).json({ error: "You are not the creator of the event" });
         }
     }
     else{
-        res.status(200).json({ error: "Event or pending user name does not exist" });
+        res.status(500).json({ error: "Event or pending user name does not exist" });
     }
 });
 
+app.use('/',function(req,res,next){
+    var isCookieCheckPass = cookieCheck(req);
+
+    if (isCookieCheckPass) {
+        console.log("Cookie check pass");
+        res.redirect("/public/AfterLogin.html")
+    }
+    else{
+        console.log("Cookie check fail");
+        //res.status(500).json({ error: 'Cookie check fail' });
+        res.redirect("/public/Home2.html")
+    }
+});
 
 // from Ex3, do not know if to erase or not
 app.set('json spaces', 40);

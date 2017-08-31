@@ -264,7 +264,7 @@ function addMyEvents() {
             }
         } else if(this.readyState == 4 && this.status === 500)
         {
-            alert("Server error getting events");
+            alert(this.responseText);
         }
     };
     request.open("GET", server_prefix + path, true );
@@ -327,17 +327,58 @@ $(document).click(function(e) {
 function presentEvent(event) {
     if (event.type === "Private") {
         var str = event.name + "<br>" + event.location + "<br>" + event.dateAndTime + "<br>" + event.participants +
-            "<br><img src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
+            "<br><img style = \"float: right\" src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
         str += "<button class = \'mybutton\' onclick=\"acceptEvent(" + event.id + ")\"> Accept </button>";
         str += "<button class = \'mybutton\' onclick=\"rejectEvent(" + event.id + ")\"> Reject </button>";
         alert(str);
         return str;
     } else {
-        var str = event.name + "<br>" + event.location + "<br>" + event.dateAndTime + "<br>" + event.participants +
-            "<br><img src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
-        str += "<button class = \"mybutton\" onclick=\"askToJoinEvent(" + event.id + ")\"> Ask to join </button>";
+        var str = event.name + "<br>" + event.location + "<br>" + event.dateAndTime.split("T") + "<br>Participants:" +
+            event.participants + "<br><img style = \"float: right\" src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
+        if (event.isAdmin) {
+            event.requestToParticipantUsers.forEach(function(user) {
+                str += "<div id=request" + user + ">";
+                str += user + "<button class = \"myButton\" onclick=\"acceptUser(" + event.id + ",\'" + user + "\')\"> Acccept </button>";
+                str += "<button class = \"myButton\" onclick=\"rejectUser(" + event.id + ",\'" + user + "\')\"> Reject </button><br>";
+                str += "</div>"
+            });
+        } else {
+            str += "<button class = \'myButton\' onclick=\"askToJoinEvent(" + event.id + ")\"> Ask to join </button>";
+        }
         return str;
     }
+}
+
+function acceptUser(event_id,username) {
+    var path = "/acceptParticipationRequest/" + event_id + "/" + username;
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            alert(username + " accepted");
+        } else if (this.readyState == 4 && this.status === 500) {
+            alert(this.responseText)
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
+    document.getElementById("request" + username).style.display = "none";
+}
+
+function rejectUser(event_id,username) {
+    var path = "/acceptParticipationRequest/" + event_id + "/" + username;
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            alert(username + " rejected");
+        } else if (this.readyState == 4 && this.status === 500) {
+            alert(this.responseText)
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
+    document.getElementById("request" + username).style.display = "none";
 }
 
 function askToJoinEvent(id) {
