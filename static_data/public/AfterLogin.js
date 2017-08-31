@@ -209,34 +209,34 @@ function eventer() {
 }
 
 function publicEventer() {
-        var eventObj = {
-            "name" : getDocValue("publicEventName"),
-            "category": getSelectValue("publicEventCategory"),
-            "location" : getDocValue("publicEventLoc"),
-            "dateAndTime" : getDocValue("publicEventDate"),
-            "imgURL" : getDocValue("publicEventPic"),
-            "description" : getDocValue("publicEventDescription"),
-            "participants" : currentFriendList,
-            "maxAge": getDocValue("publicMaxAge"),
-            "minAge": getDocValue("publicMinAge"),
-            "maxParticipants" : getDocValue("publicEventMaxPartici")
-        };
-        var path = "/createPublicEvent";
+    var eventObj = {
+        "name" : getDocValue("publicEventName"),
+        "category": getSelectValue("publicEventCategory"),
+        "location" : getDocValue("publicEventLoc"),
+        "dateAndTime" : getDocValue("publicEventDate"),
+        "imgURL" : getDocValue("publicEventPic"),
+        "description" : getDocValue("publicEventDescription"),
+        "participants" : currentFriendList,
+        "maxAge": getDocValue("publicMaxAge"),
+        "minAge": getDocValue("publicMinAge"),
+        "maxParticipants" : getDocValue("publicEventMaxPartici")
+    };
+    var path = "/createPublicEvent";
 
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function () {
-            if(this.readyState == 4 && this.status === 200)
-            {
-                alert(this.responseText);
-            } else if(this.readyState == 4 && this.status === 500)
-            {
-                alert("Invalid username");
-            }
-        };
-        request.open("POST", server_prefix + path, true );
-        request.setRequestHeader("Content-Type", "application/json");
-        request.send(JSON.stringify(eventObj));
-        request.send();
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            alert(this.responseText);
+        } else if(this.readyState == 4 && this.status === 500)
+        {
+            alert("Invalid username");
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.setRequestHeader("Content-Type", "application/json");
+    request.send(JSON.stringify(eventObj));
+    request.send();
 }
 
 function getDocValue(id) {
@@ -293,6 +293,38 @@ function addEvent(event, divName) {
 }
 
 $(document).click(function(e) {
+    if (isEvent(e.target.className)) {
+        var eventId =  e.target.id;
+
+        var path = "/getEvent/" + eventId;
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if(this.readyState == 4 && this.status === 200)
+            {
+                try {
+                    alert("hey");
+                    var event = JSON.parse(this.responseText);
+                    document.getElementById("currentEvent").innerHTML = presentEvent(event);
+                    document.getElementById("currentEvent").style.display = "block";
+                    if (document.getElementById("myEvents")) {
+                        document.getElementById("myEvents").style.display = "none";
+                    } else {
+                        document.getElementById("myPublicEvents").style.display = "none";
+                    }
+                } catch(err) {
+                    alert(err);
+                }
+            } else if(this.readyState == 4 && this.status === 500)
+            {
+                alert(this.responseText);
+            }
+        };
+        request.open("GET", server_prefix + path, true );
+        request.send();
+    }
+});
+
+$(document).bind( "touchstart", function(e) {
     if (isEvent(e.target.className)) {
         var eventId =  e.target.id;
 
