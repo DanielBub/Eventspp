@@ -91,6 +91,7 @@ function login() {
         request.open("POST", server_prefix + path, true);
         request.setRequestHeader("Content-Type", "application/json");
         request.send(JSON.stringify(userObj));
+        request.send();
     } catch (err) {
         alert(err);
     }
@@ -121,6 +122,7 @@ function signup() {
         request.open("POST", server_prefix + path, true);
         request.setRequestHeader("Content-Type", "application/json");
         request.send(JSON.stringify(userObj));
+        request.send();
     }
     else{
         alert('Please fill all the fields');
