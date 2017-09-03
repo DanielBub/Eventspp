@@ -70,26 +70,31 @@ function hidePublic() {
 }
 
 function login() {
-    var user = document.getElementById("login_user").value;
-    var password = document.getElementById("login_password").value;
-    var path = "/login";
-    var request = new XMLHttpRequest();
-    var userObj = {
-        username: user,
-        password: password
-    };
-    request.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status === 200) {
-            current_user = user;
-            alert("Welcome " + user + "!");
-            moveToAfterLogin();
-        } else if (this.readyState == 4 && this.status === 500) {
-            alert(JSON.parse(this.responseText).error);
-        }
-    };
-    request.open("POST", server_prefix + path, true);
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(JSON.stringify(userObj));
+    try {
+        alert("login attempt");
+        var user = document.getElementById("login_user").value;
+        var password = document.getElementById("login_password").value;
+        var path = "/login";
+        var request = new XMLHttpRequest();
+        var userObj = {
+            username: user,
+            password: password
+        };
+        request.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status === 200) {
+                current_user = user;
+                alert("Welcome " + user + "!");
+                moveToAfterLogin();
+            } else if (this.readyState == 4 && this.status === 500) {
+                alert(JSON.parse(this.responseText).error);
+            }
+        };
+        request.open("POST", server_prefix + path, true);
+        request.setRequestHeader("Content-Type", "application/json");
+        request.send(JSON.stringify(userObj));
+    } catch (err) {
+        alert(err);
+    }
 }
 
 function signup() {
