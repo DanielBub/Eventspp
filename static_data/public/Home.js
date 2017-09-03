@@ -71,7 +71,6 @@ function hidePublic() {
 
 function login() {
     try {
-        alert("login attempt");
         var user = document.getElementById("login_user").value;
         var password = document.getElementById("login_password").value;
         var path = "/login";

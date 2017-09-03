@@ -19,5 +19,4 @@ $( "#publicEventCategory" ).change(function() {
     };
     request.open("GET", server_prefix + path, true );
     request.send();
-    ;
 });

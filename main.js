@@ -13,18 +13,20 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var app = express();
 
+
+var eventDiscriptions = ["Live concert!!!", "Movies :)", "Coffee and chill", "Pool Party",  "Football"];
+var imgURLs= ["http://az616578.vo.msecnd.net/files/2017/02/28/6362384699061998551682913604_HERO_IBIZA_CLOSING_PARTIES_Privilege.jpg",
+    "http://images.clipartpanda.com/movie-night-clipart-9cp4q9xcE.jpeg",
+    "https://fthmb.tqn.com/9tIYcqCpS8njB2VIOnChlz_nY5I=/1500x1000/filters:fill(auto,1)/about/Cafeconleche-56fcf86e5f9b586195b73dbf.JPG",
+    "http://lathampool.com/trilogy/wp-content/uploads/sites/5/2017/05/trilogy-pools-home-1.jpg",
+    "http://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Kids/Articles/Soccer+Tips/carousel.jpg"];
+
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('static_data'));
 app.set('port', (process.env.PORT || defaultPort));
 
-eventDiscriptions = ["Live concert!!!", "Movies :)", "Coffee and chill", "Pool Party",  "Football"];
-imgURLs= ["http://az616578.vo.msecnd.net/files/2017/02/28/6362384699061998551682913604_HERO_IBIZA_CLOSING_PARTIES_Privilege.jpg",
-          "http://images.clipartpanda.com/movie-night-clipart-9cp4q9xcE.jpeg",
-          "https://fthmb.tqn.com/9tIYcqCpS8njB2VIOnChlz_nY5I=/1500x1000/filters:fill(auto,1)/about/Cafeconleche-56fcf86e5f9b586195b73dbf.JPG",
-          "http://lathampool.com/trilogy/wp-content/uploads/sites/5/2017/05/trilogy-pools-home-1.jpg",
-          "http://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Kids/Articles/Soccer+Tips/carousel.jpg"];
 
 app.post('/register', function(req, res, next) {
     var userName = req.body.username;
@@ -69,6 +71,13 @@ app.post('/login', function(req, res,next) {
     else{
         res.status(500).json({ error: 'Wrong user name or password' });
     }
+});
+
+app.options("/*", function(req, res, next){
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    res.send(200);
 });
 
 function calculateMyAge(birthday) {
@@ -617,7 +626,7 @@ function createEvents(){
         var event = {
             name: eventName, category: eventCategory, location: "Tel Aviv", creator: userName,
             dateAndTime: dateAndTime, maxAge: eventMaxAge, minAge: eventMinAge,
-            maxParticipants: eventMaxParticipants, imgURL: "", description: "",
+            maxParticipants: eventMaxParticipants, imgURL: "", description: "Beer Party",
             participants: [userName], attendingUsers: [userName], noResponseUsers: [], notGoingUsers: [],
             requestToParticipantUsers: [], type: "Public", id: currentEventID
         };
