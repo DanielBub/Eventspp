@@ -91,8 +91,9 @@ function login() {
         };
         request.open("POST", server_prefix + path, true);
         request.setRequestHeader("Content-Type", "application/json");
-        request.send(JSON.stringify(userObj));
         req = request;
+        request.send(JSON.stringify(userObj));
+        req.send();
     } catch (err) {
         req.send();
     }
