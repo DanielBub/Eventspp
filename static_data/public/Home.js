@@ -93,7 +93,6 @@ function login() {
         request.send(JSON.stringify(userObj));
         request.send();
     } catch (err) {
-        alert(err);
     }
 }
 
