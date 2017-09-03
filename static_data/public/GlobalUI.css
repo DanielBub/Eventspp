@@ -165,10 +165,104 @@ body {
 	margin: 5px;
 }
 
+.eventStylePending {
+	overflow : auto;
+	display:block;
+	background-color: #e8e8e8;
+	padding: 10px;
+	border: 15px blue;
+	border-style: solid;
+	font-size: 42px;
+	color: #000;
+	margin: 5px;
+}
+
+.eventStyleNotPartOfTheEvent {
+	overflow : auto;
+	display:block;
+	background-color: #e8e8e8;
+	padding: 10px;
+	border: 15px orange;
+	border-style: solid;
+	font-size: 42px;
+	color: #000;
+	margin: 5px;
+}
+
+.eventStyleNonClickAbleYes {
+
+	overflow : auto;
+	display:block;
+	background-color: #e8e8e8;
+	padding: 10px;
+	border: 15px green;
+	border-style: solid;
+	font-size: 42px;
+	color: #000;
+	margin: 5px;
+}
+
+
+.eventStyleNonClickAbleNo {
+
+	overflow : auto;
+	display:block;
+	background-color: #e8e8e8;
+	padding: 10px;
+	border: 15px red;
+	border-style: solid;
+	font-size: 42px;
+	color: #000;
+	margin: 5px;
+}
+
+
+.eventStyleNonClickAbleMaybe {
+	overflow : auto;
+	display:block;
+	background-color: #e8e8e8;
+	padding: 10px;
+	border: 15px yellow;
+	border-style: solid;
+	font-size: 42px;
+	color: #000;
+	margin: 5px;
+}
+
+.eventStyleNonClickAblePending {
+	overflow : auto;
+	display:block;
+	background-color: #e8e8e8;
+	padding: 10px;
+	border: 15px blue;
+	border-style: solid;
+	font-size: 42px;
+	color: #000;
+	margin: 5px;
+}
+
+.eventStyleNonClickAbleNotPartOfTheEvent {
+	overflow : auto;
+	display:block;
+	background-color: #e8e8e8;
+	padding: 10px;
+	border: 15px orange;
+	border-style: solid;
+	font-size: 42px;
+	color: #000;
+	margin: 5px;
+}
+
 #myEvents {
 	height:100vh;
 	overflow-y: scroll;
 }
+
+#currentEvent{
+	/*height:100vh;*/
+	overflow-y: scroll;
+}
+
 
 input[type=text], select, textarea, input[type=password] {
 	width: 40%;

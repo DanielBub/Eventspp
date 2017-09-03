@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="AfterLogin.js"></script>
 
-<link rel="stylesheet" href="UI.css">
+<link rel="stylesheet" href="GlobalUI.css">
 <meta charset="UTF-8">
 <title>Main Menu</title>
 
@@ -22,19 +22,19 @@
 
     </div>
 
-    <br><br><br><br>
     <script> addMyPublicEvents();</script>
 
     <div id="currentEvent" style="display:none">
 
     </div>
+    <br><br><br><br><br><br><br><br>
 
     <ul class="navbarUl">
         <li class="navbarLi"><a  href="AfterLogin.html">My Events</a></li>
         <li class="navbarLi"><a class="active" href="FindEvents.html">Find Event</a></li>
         <li class="navbarLi"><a href="Friends.html">Friend Zone</a></li>
         <li class="navbarLi"><a  href="Events.html">Create Event</a></li>
-        <li class="navbarLi"><a href="Home2.html">Log Out</a></li>
+        <li class="navbarLi"><a href="Home.html" onclick="deleteCookie()">Log Out</a></li>
     </ul>
 </div>
 

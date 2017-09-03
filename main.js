@@ -1,7 +1,3 @@
-/**
- * Created by barak on 18/08/2017.
- */
-
 var currentCookie = 1;
 var currentEventID = 1;
 var userNamesToPasswords = {};
@@ -23,13 +19,18 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('static_data'));
 app.set('port', (process.env.PORT || defaultPort));
 
+eventDiscriptions = ["Live concert!!!", "Movies :)", "Coffee and chill", "Pool Party",  "Football"];
+imgURLs= ["http://az616578.vo.msecnd.net/files/2017/02/28/6362384699061998551682913604_HERO_IBIZA_CLOSING_PARTIES_Privilege.jpg",
+          "http://images.clipartpanda.com/movie-night-clipart-9cp4q9xcE.jpeg",
+          "https://fthmb.tqn.com/9tIYcqCpS8njB2VIOnChlz_nY5I=/1500x1000/filters:fill(auto,1)/about/Cafeconleche-56fcf86e5f9b586195b73dbf.JPG",
+          "http://lathampool.com/trilogy/wp-content/uploads/sites/5/2017/05/trilogy-pools-home-1.jpg",
+          "http://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Kids/Articles/Soccer+Tips/carousel.jpg"];
+
 app.post('/register', function(req, res, next) {
-    console.log("try to register");
     var userName = req.body.username;
     var password = userNamesToPasswords[userName];
 
     if (password){
-        console.log("User already exists");
         res.status(500).json({ error: 'The user name already exists' });
     }
     else{
@@ -43,31 +44,10 @@ app.post('/register', function(req, res, next) {
         userNamesToPasswords[userName] = req.body.password;
         userNamesToUsers[userName] = user;
         res.status(200).json({ message: 'The user has been registered' });
-        console.log("User was created");
     }
 });
 
-// app.post('/register/:userName/:password', function(req,res,next){
-//     console.log("try to register");
-//     var userName = req.params.userName;
-//     var password = userNamesToPasswords[userName];
-//
-//     if (password){
-//         console.log("User already exists");
-//         res.status(500).json({ error: 'The user name has already existed' });
-//     }
-//     else{
-//         var user = {name:userName, friends:[], friendsRequests:[], events:[]};
-//
-//         userNamesToPasswords[userName] = req.params.password;
-//         userNamesToUsers[userName] = user;
-//         res.status(200).json({ message: 'The user has been registered' });
-//         console.log("User was created");
-//     }
-// });
-
 app.post('/login', function(req, res,next) {
-    console.log("try to login");
     var userName = req.body.username;
     var password = userNamesToPasswords[userName];
 
@@ -80,16 +60,13 @@ app.post('/login', function(req, res,next) {
             user["age"] = calculateMyAge(user.birthday);
             currentCookie++;
             res.cookie('appId', cookie, { maxAge: maxCookieTime});
-            console.log("User loggedIn");
             res.redirect("/public/AfterLogin.html")
         }
         else{
-            console.log("User loggedIn fail");
             res.status(500).json({ error: 'Wrong user name or password' });
         }
     }
     else{
-        console.log("User loggedIn fail");
         res.status(500).json({ error: 'Wrong user name or password' });
     }
 });
@@ -102,63 +79,29 @@ function calculateMyAge(birthday) {
     return Math.abs(ageDate.getUTCFullYear() - 1970);
 }
 
-
-// app.post('/login/:userName/:password', function(req,res,next){
-//     console.log("try to login");
-//     var userName = req.params.userName;
-//     var password = userNamesToPasswords[userName];
-//
-//     if (password){
-//         if (password === req.params.password){
-//             var cookie = currentCookie;
-//             userNamesToCookies[userName] = cookie;
-//             cookiesToUserNames[cookie] = userName;
-//             currentCookie++;
-//             res.cookie('appId', cookie, { maxAge: maxCookieTime});
-//             res.status(200);
-//             res.send();
-//             console.log("User loggedIn");
-//         }
-//         else{
-//             console.log("User loggedIn fail");
-//             res.status(500).json({ error: 'Wrong user name or password' });
-//         }
-//     }
-//     else{
-//         console.log("User loggedIn fail");
-//         res.status(500).json({ error: 'Wrong user name or password' });
-//     }
-// });
-
 app.use('/authenticate',function(req,res,next){
-    console.log("Authenticate");
     var isCookieCheckPass = cookieCheck(req);
 
     if (isCookieCheckPass) {
         res.status(200).json({ message: 'Pass' });
     }
     else{
-        console.log("Cookie check fail1");
         res.status(500).json({ error: 'Cookie check fail' });
     }
-
 });
 
 app.use('/',function(req,res,next){
     var isCookieCheckPass = cookieCheck(req);
 
     if (isCookieCheckPass) {
-        //console.log("Cookie check pass");
         next();
     }
     else{
-        //console.log("Cookie check fail");
-        res.redirect("/public/Home2.html")
+        res.redirect("/public/Home.html")
     }
 });
 
 function cookieCheck(req){
-    //console.log("Cookie check ");
     var cookie = req.cookies.appId;
     var userName = cookiesToUserNames[cookie];
     var isCookieCheckPass = false;
@@ -178,21 +121,22 @@ function getUserName(req){
 }
 
 app.post('/addFriend/:friendUserName',function (req,res,next) {
-    console.log("Trying to add friend");
     var userName = getUserName(req);
+    var user = userNamesToUsers[userName];
     var friendUserName = req.params.friendUserName;
     var friendUser = userNamesToUsers[friendUserName];
 
     if (friendUser){
         var friendRequestIndex = friendUser.friendsRequests.indexOf(userName);
+        var RequestIndex = user.friendsRequests.indexOf(friendUserName);
         var friendIndex = friendUser.friends.indexOf(userName);
 
-        if (friendRequestIndex === -1 && friendIndex === -1){
+        if (friendRequestIndex === -1 && friendIndex === -1 && RequestIndex === -1){
             friendUser.friendsRequests.push(userName);
             res.status(200).json({ message: userName + ' send friend request to ' + friendUserName});
         }
         else{
-            res.status(500).json({ error: 'Friend request has already sent to ' + friendUserName });
+            res.status(500).json({ error: 'Friend request has already sent' });
         }
     }
     else{
@@ -201,25 +145,21 @@ app.post('/addFriend/:friendUserName',function (req,res,next) {
 });
 
 app.get('/friendRequests',function (req,res,next) {
-    //console.log("get friends Request");
     var userName = getUserName(req);
 
     res.status(200).json(userNamesToUsers[userName].friendsRequests);
 });
 
 app.post('/acceptFriend/:friendUserName',function (req,res,next) {
-    console.log("try to ACCEPTING FRIEND");
     var userName = getUserName(req);
     var friendUserName = req.params.friendUserName;
     var friendsRequests = userNamesToUsers[userName].friendsRequests;
     var indexOfFriend = friendsRequests.indexOf(friendUserName);
 
     if (indexOfFriend > -1) {
-        console.log("friend user name is my friend");
         friendsRequests.splice(indexOfFriend, 1);
         userNamesToUsers[userName].friends.push(friendUserName);
         userNamesToUsers[friendUserName].friends.push(userName);
-        console.log("accepting friend is done");
         res.status(200).json({ message: userName + ' accepted ' + friendUserName });
     }
     else{
@@ -228,14 +168,12 @@ app.post('/acceptFriend/:friendUserName',function (req,res,next) {
 });
 
 app.get('/friends',function (req,res,next) {
-    console.log("get friends");
     var userName = getUserName(req);
 
     res.status(200).json(userNamesToUsers[userName].friends);
 });
 
 app.post('/createPrivateEvent',function(req,res,next){
-    console.log("create private event");
     var userName = getUserName(req);
     var eventName = req.body["name"];
     var eventLocation = req.body["location"];
@@ -254,12 +192,10 @@ app.post('/createPrivateEvent',function(req,res,next){
     userNamesToUsers[userName].events.push(currentEventID);
     currentEventID++;
 
-    console.log("Private event was created");
     res.status(200).json({ message: 'Private event was created' });
 });
 
 app.post('/createPublicEvent',function(req,res,next){
-    console.log("create public event");
     var userName = getUserName(req);
     var eventName = req.body["name"];
     var eventCategory = req.body["category"];
@@ -284,7 +220,6 @@ app.post('/createPublicEvent',function(req,res,next){
     userNamesToUsers[userName].events.push(currentEventID);
     currentEventID++;
 
-    console.log("Public event was created");
     res.status(200).json({ message: 'Public event was created' });
 });
 
@@ -298,23 +233,19 @@ function registerParticipants(participants, currentEventID, eventCreatorUserName
 }
 
 app.post('/acceptEventRequest/:eventId',function (req,res,next) {
-    console.log("Trying to accept event Request");
     changeRSVP("attending", res, req);
 });
 
 app.post('/rejectEventRequest/:eventId',function (req,res,next) {
-    console.log("Trying to reject Event Request");
     changeRSVP("not going", res, req);
 });
 
 function changeRSVP(status, res, req) {
-    console.log("RSVP");
     var userName = getUserName(req);
     var eventId = req.params.eventId;
     var event = eventIdsToEvents[eventId];
 
     if (event) {
-        console.log("event was found");
         var eventIndex = userNamesToUsers[userName].events.indexOf(parseInt(eventId));
         if (eventIndex > -1) {
             changeEventStatus(status, event, userName, res);
@@ -325,16 +256,12 @@ function changeRSVP(status, res, req) {
         }
     }
     else {
-        console.log("event was not found");
         res.status(500).json({error: 'Event ID does not exist'});
     }
-
 }
 
 function changeEventStatus(status, event, userName, res) {
-    console.log("change status");
     if (status === "attending"){
-        console.log("attend to event");
         var eventIndex = event.attendingUsers.indexOf(userName);
         if (!(eventIndex > -1)){
             if (event.type === "Public") {
@@ -351,13 +278,13 @@ function changeEventStatus(status, event, userName, res) {
         }
     }
     else{
-        console.log("not going to event");
         var eventIndex = event.notGoingUsers.indexOf(userName);
         if(!(eventIndex > -1)){
             eventIndex = event.noResponseUsers.indexOf(userName);
             if(eventIndex > -1){
                 event.noResponseUsers.splice(eventIndex, 1);
-            }else{
+            }
+            else{
                 event.attendingUsers.splice(eventIndex, 1);
             }
 
@@ -379,18 +306,15 @@ function changeToAttending(event, userName) {
 }
 
 app.get('/getEvent/:eventId',function(req,res,next){
-    console.log("get  event");
     var userName = getUserName(req);
     var eventId = req.params.eventId;
 
     if (eventIdsToEvents[eventId]){
-        console.log("event was found");
         var eventIndex = userNamesToUsers[userName].events.indexOf(parseInt(eventId));
         var event = eventIdsToEvents[eventId];
         var isRelevantPublicEvent = checkIfRelevantPublicEvent(event, userName);
 
         if(eventIndex > -1 || isRelevantPublicEvent){
-            console.log("succeed to get private event");
             var eventStatus = getStatus(event,userName);
 
             event["status"] = eventStatus;
@@ -398,19 +322,15 @@ app.get('/getEvent/:eventId',function(req,res,next){
             res.status(200).json(event);
         }
         else{
-            console.log("The user does not has this event");
             res.status(500).json({ error: "The user does not has this event" });
         }
     }
     else{
-        console.log("Event was not found");
         res.status(500).json({ error: "Event does not found" });
     }
 });
 
 function getStatus(event,userName){
-    console.log("getStatus");
-    console.log("event");
     var status;
 
     if (event.participants.indexOf(userName) > -1){
@@ -424,49 +344,43 @@ function getStatus(event,userName){
             status = "No";
         }
         else if (event.type === "Public"){
-            console.log("Public!!!")
             if (event.requestToParticipantUsers.indexOf(userName) > -1){
-                console.log("Pending!!!!!!")
                 status = "Pending";
             }
         }
         else{
-            status = "Not part of the event1";
+            status = "NotPartOfTheEvent";
         }
     }
     else{
-        status = "Not part of the event2";
+        status = "NotPartOfTheEvent";
     }
 
     return status;
 }
 
 app.get('/getEvents',function(req,res,next){
-    console.log("try to get events");
     var userName = getUserName(req);
-    console.log("user name was found");
     var userEvents = [];
 
     for (var i = 0; i < userNamesToUsers[userName].events.length; i++){
-        var event = eventIdsToEvents[userNamesToUsers[userName].events[i]];
+        var eventId = userNamesToUsers[userName].events[i];
+        var event = eventIdsToEvents[eventId];
         var eventStatus = getStatus(event,userName);
+
         event["status"] = eventStatus;
         event["isAdmin"] = event.creator === userName;
         userEvents.push(event);
-        console.log(event);
     }
 
-    console.log("retrun all events");
     res.status(200).json(userEvents);
 });
 
 app.get('/getCategories', function (req, res, next) {
-    console.log("Get Categories");
     res.status(200).json(publicEventsCategories);
 });
 
 app.get('/findPublicEvents/:eventCategory', function(req, res, next) {
-    console.log("Find public Events");
     var userName = getUserName(req);
     var eventCategory = req.params.eventCategory;
     var publicEvents = [];
@@ -477,6 +391,10 @@ app.get('/findPublicEvents/:eventCategory', function(req, res, next) {
 
         if (isRelevantPublicEvent)
         {
+            var eventStatus = getStatus(event,userName);
+
+            event["status"] = eventStatus;
+            event["isAdmin"] = event.creator === userName;
             publicEvents.push(event);
         }
     }
@@ -486,14 +404,13 @@ app.get('/findPublicEvents/:eventCategory', function(req, res, next) {
 
 function checkIfRelevantPublicEvent(event, userName, eventCategory)
 {
-    console.log(event);
     var isRelevantPublicEvent = false;
     var myAge = userNamesToUsers[userName].age;
 
     if (event.type === "Public" ){
         var userNameIndex = event.participants.indexOf(userName);
 
-        if ((eventCategory === event.category || !eventCategory) && event.participants.length < event.maxParticipants &&
+        if ((eventCategory === event.category || !eventCategory) && event.attendingUsers.length < event.maxParticipants &&
             myAge <= event.maxAge && myAge >= event.minAge && userNameIndex === -1){
             isRelevantPublicEvent = true;
         }
@@ -503,14 +420,12 @@ function checkIfRelevantPublicEvent(event, userName, eventCategory)
 }
 
 app.get('/getUserData', function (req, res, next) {
-    console.log("Get User");
     var userName = getUserName(req);
     res.status(200).json(userNamesToUsers[userName]);
 });
 
 
 app.post('/requestToParticipantInPublicEvent/:eventId', function (req, res, next) {
-    console.log("Request to Participant in event ");
     var eventId = req.params.eventId;
     var event = eventIdsToEvents[parseInt(eventId)];
     var userName = getUserName(req);
@@ -522,7 +437,7 @@ app.post('/requestToParticipantInPublicEvent/:eventId', function (req, res, next
             if(!(userNameIndex > -1)){
                 event.participants.push(userName);
                 event.requestToParticipantUsers.push(userName);
-                userNamesToUsers[userName].events.push(event);
+                userNamesToUsers[userName].events.push(parseInt(eventId));
                 res.status(200).json({ massage: "The user added to the event, pending to approval" });
             }
             else {
@@ -536,7 +451,6 @@ app.post('/requestToParticipantInPublicEvent/:eventId', function (req, res, next
     else{
         res.status(500).json({ error: "Event does not exist" });
     }
-
 });
 
 app.post('/acceptParticipationRequest/:eventId/:pendingUserName', function (req, res, next) {
@@ -582,11 +496,13 @@ app.post('/rejectParticipationRequest/:eventId/:pendingUserName', function (req,
     if (event && pendingUser){
         if (event.creator === userName){
             var pendingUserIndex = event.requestToParticipantUsers.indexOf(pendingUserName);
+            var eventIndex = pendingUser.events.indexOf(parseInt(eventId));
 
             if (pendingUserIndex > -1){
                 event.requestToParticipantUsers.splice(pendingUserIndex, 1);
                 pendingUserIndex = event.participants.indexOf(pendingUserName);
                 event.participants.splice(pendingUserIndex, 1);
+                pendingUser.events.splice(eventIndex, 1);
             }
             else{
                 res.status(500).json({ error: pendingUserName + " does not ask to join to this event" });
@@ -605,53 +521,110 @@ app.use('/',function(req,res,next){
     var isCookieCheckPass = cookieCheck(req);
 
     if (isCookieCheckPass) {
-        console.log("Cookie check pass");
         res.redirect("/public/AfterLogin.html")
     }
     else{
-        console.log("Cookie check fail");
-        //res.status(500).json({ error: 'Cookie check fail' });
-        res.redirect("/public/Home2.html")
+        res.redirect("/public/Home.html")
     }
 });
 
-// from Ex3, do not know if to erase or not
 app.set('json spaces', 40);
 
 app.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
 
+
+// From this line it all a dummy data and not part of the real server
 init();
 
 function init(){
 
-    for(var i = 0; i < 10; i++){
-        createUser("" + i, "" + i);
+    for(var i = 1; i <= 10; i++){
+        createUser("" + i, "" + i, i);
     }
 
-    addFriends("" + 0);
+    addFriends1("" + 1);
 
-    addFriends2("" + 1);
+    addFriends2("" + 2);
 
-
+    createEvents();
 }
 
-function createUser(userName,password) {
+function createUser(userName, password, ageFactor) {
     userNamesToPasswords[userName] = password;
-    var user = {name:userName, friends:[], friendsRequests:[], events:[], eventsRequests:[]};
+    var oneYear = 31610421331;
+    var baseAge = 20;
+    var userBirthday = new Date(Date.now() - ((baseAge + ageFactor) * oneYear));
+    var user = { name: userName, email: "mail@mail.com", birthday: userBirthday, age: calculateMyAge(userBirthday),
+        sex: "Male", image: "img.jpg", friends:[], friendsRequests:[], events:[] };
+
     userNamesToUsers[userName] = user;
 }
 
-function addFriends(userName){
-    for(var i = parseInt(userName) + 1; i < 10; i++){
-        userNamesToUsers[userName].friends.push("" + i);
-        userNamesToUsers["" + i].friends.push(userName);
+function addFriends1(userName){
+    var friend = parseInt(userName) + 1;
+
+    for(; friend < 9; friend++){
+        userNamesToUsers[userName].friends.push("" + friend);
+        userNamesToUsers["" + friend].friends.push(userName);
     }
+
+    userNamesToUsers[userName].friendsRequests.push("9");
+    userNamesToUsers[userName].friendsRequests.push("10");
 }
 
 function addFriends2(userName){
-    for(var i = parseInt(userName) + 5; i < 10; i++){
-        userNamesToUsers[userName].friends.push("" + i);
+    var friend = parseInt(userName) + 1;
+
+    for(; friend <= 5; friend++){
+        userNamesToUsers[userName].friends.push("" + friend);
+        userNamesToUsers["" + friend].friends.push(userName);
+    }
+}
+
+function createEvents(){
+    for (var i = 1; i <= 10; i++){
+        var privateEventName = "Private event of " + i;
+        var userName = "" + i;
+        var user = userNamesToUsers[userName];
+        var dateAndTime = new Date(Date.now());
+        var randomEventIndex = Math.floor(Math.random() * 5);
+        var event = {name: privateEventName, location: "Tel Aviv", dateAndTime: dateAndTime, creator: userName,
+            participants: [userName], imgURL: imgURLs[randomEventIndex], description: eventDiscriptions[randomEventIndex],
+            attendingUsers: [userName], noResponseUsers: [],notGoingUsers: [], type: "Private", id: currentEventID};
+
+        for (var j = 0;  j < user.friends.length; j++)
+        {
+            event.participants.push(user.friends[j]);
+        }
+
+        registerParticipants(event.participants,currentEventID, userName, event);
+        eventIdsToEvents[currentEventID] = event;
+        userNamesToUsers[userName].events.push(currentEventID);
+        currentEventID++;
+    }
+
+    for (var i = 1; i <= 10; i++) {
+        var userName = "" + i;
+        var user = userNamesToUsers[userName];
+        var eventName = "Public event of " + i;
+        var eventCategory = publicEventsCategories[i % publicEventsCategories.length];
+        var dateAndTime = new Date(Date.now());
+        var eventMaxAge = parseInt(user.age);
+        var eventMinAge = 20;
+        var eventMaxParticipants = 5;
+        var event = {
+            name: eventName, category: eventCategory, location: "Tel Aviv", creator: userName,
+            dateAndTime: dateAndTime, maxAge: eventMaxAge, minAge: eventMinAge,
+            maxParticipants: eventMaxParticipants, imgURL: "", description: "",
+            participants: [userName], attendingUsers: [userName], noResponseUsers: [], notGoingUsers: [],
+            requestToParticipantUsers: [], type: "Public", id: currentEventID
+        };
+
+        registerParticipants(event.participants, currentEventID, userName, event);
+        eventIdsToEvents[currentEventID] = event;
+        userNamesToUsers[userName].events.push(currentEventID);
+        currentEventID++;
     }
 }

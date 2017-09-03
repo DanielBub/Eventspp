@@ -1,9 +1,3 @@
-
-/**
- * Created by dbublil on 8/1/2017.
- */
-
-
 var server_prefix = "https://eventspp.herokuapp.com";
 // var server_prefix = "http://localhost:5000";
 currentFriendList = [];
@@ -16,10 +10,9 @@ function authenticate() {
         {
             alert("Please log in.");
             disconnect();
-
-        } else {
+        }
+        else {
             document.getElementById("yesPass").style.visibility = "visible";
-
         }
     };
     request.open("POST", server_prefix + path, true );
@@ -27,7 +20,7 @@ function authenticate() {
 }
 
 function acceptOrReject(username) {
-    return "    <button class=\"myButton\" onclick=\"acceptFriend(\'" + username + "\')\">Accept</button>"
+    return "<button class=\"myButton\" onclick=\"acceptFriend(\'" + username + "\')\">Accept</button>";
 }
 
 function goToFriends() {
@@ -43,21 +36,19 @@ function goHome() {
 }
 
 function disconnect() {
-    goToPage("Home2.html");
+    goToPage("Home.html");
 }
 
 function acceptFriend(username) {
-    // alert("ACCEPTING");
     var path = "/acceptFriend/" + username;
-    // alert(path);
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
         {
             alert("You and " + username + " are now friends!");
-        } else if(this.readyState == 4 && this.status === 500)
-        {
-            alert("Invalid username");
+        }
+        else if(this.readyState == 4 && this.status === 500) {
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("POST", server_prefix + path, true );
@@ -76,7 +67,7 @@ function fillCategories() {
             }
         } else if(this.readyState == 4 && this.status === 500)
         {
-            alert("Server error getting friends");
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("GET", server_prefix + path, true );
@@ -91,29 +82,26 @@ function addCategoryToSelect(str) {
 }
 
 function refreshFriendRequests() {
-    try {
-        var path = "/friendRequests";
+    var path = "/friendRequests";
+    var request = new XMLHttpRequest();
 
-        var request = new XMLHttpRequest();
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                var all_reqs = JSON.parse(this.responseText);
-                var spanOfNumFriends = document.getElementById("requestNum");
-                spanOfNumFriends.innerHTML = all_reqs.length;
-                var str = "";
-                all_reqs.forEach(function(friend) {
-                    str = friend + acceptOrReject(friend) + "<br>";
-                });
-                document.getElementById("addedMe").innerHTML =  str;
-            } else if (this.readyState == 4 && this.status == 500) {
+    request.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var all_reqs = JSON.parse(this.responseText);
+            var spanOfNumFriends = document.getElementById("requestNum");
+            spanOfNumFriends.innerHTML = all_reqs.length;
+            var str = "";
+            all_reqs.forEach(function(friend) {
+                str += friend + acceptOrReject(friend) + "<br>";
+            });
+            document.getElementById("addedMe").innerHTML =  str;
 
-            }
-        };
-        request.open("GET", server_prefix + path, true);
-        request.send();
-    } catch (err) {
-        alert(err);
-    }
+        } else if (this.readyState == 4 && this.status == 500) {
+            alert(JSON.parse(this.responseText).error);
+        }
+    };
+    request.open("GET", server_prefix + path, true);
+    request.send();
 }
 
 setInterval(refreshFriendRequests, 1000);
@@ -122,27 +110,40 @@ function sendFriendRequest() {
     var user = document.getElementById("friendRequestName").value;
     var path = "/addFriend/" + user;
     var request = new XMLHttpRequest();
-    // alert("Adding " + user);
+
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
         {
             alert("Friend request to " + user + " sent.");
         } else if(this.readyState == 4 && this.status === 500)
         {
-            alert(this.responseText);
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("POST", server_prefix + path, true );
     request.send();
-
 }
 
 function goToPage(page) {
     window.location.href = server_prefix + "/public/" + page;
 }
 
-function addFriendToEvent() {
-    currentFriendList.push(getSelectValue("friendSelect"));
+function addFriendToEvent(eventType) {
+    var friend;
+
+    if (eventType === 'Private'){
+        friend = getSelectValue("friendSelect");
+    }
+    else{
+        friend = getSelectValue("publicEventfriendSelect");
+    }
+
+    if (currentFriendList.indexOf(friend) > -1){
+        alert("You already invited " + friend + " to this event");
+    }
+    else{
+        currentFriendList.push(friend);
+    }
 }
 
 function fillFriendList() {
@@ -157,12 +158,11 @@ function fillFriendList() {
             }
         } else if(this.readyState == 4 && this.status === 500)
         {
-            alert("Server error getting friends");
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("GET", server_prefix + path, true );
     request.send();
-
 }
 
 function addFriendToSelect(str) {
@@ -190,22 +190,34 @@ function eventer() {
         "description" : getDocValue("eventDescription"),
         "participants" : currentFriendList
     };
-    var path = "/createPrivateEvent";
 
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if(this.readyState == 4 && this.status === 200)
-        {
-            alert(this.responseText);
-        } else if(this.readyState == 4 && this.status === 500)
-        {
-            alert("Invalid username");
-        }
-    };
-    request.open("POST", server_prefix + path, true );
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(JSON.stringify(eventObj));
-    request.send();
+    var timestamp = Date.parse(eventObj.dateAndTime);
+
+    if (eventObj.name !== "" && eventObj.location !== "" && isNaN(timestamp) === false &&
+        eventObj.description !== "" && eventObj.participants.length > 0){
+
+        var path = "/createPrivateEvent";
+
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if(this.readyState == 4 && this.status === 200)
+            {
+                alert(this.responseText);
+                alert(JSON.parse(this.responseText).message);
+            } else if(this.readyState == 4 && this.status === 500)
+            {
+                alert(JSON.parse(this.responseText).error);
+            }
+        };
+        request.open("POST", server_prefix + path, true );
+        request.setRequestHeader("Content-Type", "application/json");
+        request.send(JSON.stringify(eventObj));
+        currentFriendList = [];
+        request.send();
+    }
+    else{
+        alert('Please fill all the fields');
+    }
 }
 
 function publicEventer() {
@@ -221,22 +233,37 @@ function publicEventer() {
         "minAge": getDocValue("publicMinAge"),
         "maxParticipants" : getDocValue("publicEventMaxPartici")
     };
-    var path = "/createPublicEvent";
 
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-        if(this.readyState == 4 && this.status === 200)
-        {
-            alert(this.responseText);
-        } else if(this.readyState == 4 && this.status === 500)
-        {
-            alert("Invalid username");
-        }
-    };
-    request.open("POST", server_prefix + path, true );
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(JSON.stringify(eventObj));
-    request.send();
+    var timestamp = Date.parse(eventObj.dateAndTime);
+    var maxAge = parseInt(eventObj.maxAge);
+    var minAge = parseInt(eventObj.minAge);
+    var maxParticipants = parseInt(eventObj.maxParticipants);
+
+    if (eventObj.name !== "" && eventObj.location !== "" && isNaN(timestamp) === false &&
+        eventObj.description !== "" && isNaN(maxAge) === false && isNaN(minAge) === false && minAge > 0 &&
+        maxAge >= minAge && isNaN(maxParticipants) === false && maxParticipants >= 2){
+
+        var path = "/createPublicEvent";
+
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if(this.readyState == 4 && this.status === 200)
+            {
+                alert(JSON.parse(this.responseText).message);
+            } else if(this.readyState == 4 && this.status === 500)
+            {
+                alert(JSON.parse(this.responseText).error);
+            }
+        };
+        request.open("POST", server_prefix + path, true );
+        request.setRequestHeader("Content-Type", "application/json");
+        request.send(JSON.stringify(eventObj));
+        currentFriendList = [];
+        request.send();
+    }
+    else{
+        alert('Please fill all the fields');
+    }
 }
 
 function getDocValue(id) {
@@ -264,22 +291,24 @@ function addMyEvents() {
             }
         } else if(this.readyState == 4 && this.status === 500)
         {
-            alert(this.responseText);
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("GET", server_prefix + path, true );
     request.send();
-
-
-
 }
+
+function deleteCookie() {
+    document.cookie = "appId" +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
 
 function addEvent(event, divName) {
     var eventDiv = document.createElement("div");
     var img = document.createElement("img");
     var container = document.createElement("div");
     var strings = [];
-    strings.push(event.name, event.dateAndTime, event.location);
+    strings.push(event.name, parseEventDateTime(event.dateAndTime), event.location);
     container.className = "container";
     img.src = event.imgURL || "http://mac.h-cdn.co/assets/15/35/1440442371-screen-shot-2015-08-24-at-25213-pm.png";
     img.className = "eventImg";
@@ -302,9 +331,8 @@ $(document).click(function(e) {
             if(this.readyState == 4 && this.status === 200)
             {
                 try {
-                    alert("hey");
                     var event = JSON.parse(this.responseText);
-                    document.getElementById("currentEvent").innerHTML = presentEvent(event);
+                    presentEvent(event, "currentEvent");
                     document.getElementById("currentEvent").style.display = "block";
                     if (document.getElementById("myEvents")) {
                         document.getElementById("myEvents").style.display = "none";
@@ -316,13 +344,19 @@ $(document).click(function(e) {
                 }
             } else if(this.readyState == 4 && this.status === 500)
             {
-                alert(this.responseText);
+                alert(JSON.parse(this.responseText).error);
             }
         };
         request.open("GET", server_prefix + path, true );
         request.send();
     }
 });
+
+function parseEventDateTime(strDate){
+    var date = new Date(strDate);
+
+    return date.toDateString() + " " + date.toLocaleTimeString();
+}
 
 $(document).bind( "touchstart", function(e) {
     if (isEvent(e.target.className)) {
@@ -334,9 +368,8 @@ $(document).bind( "touchstart", function(e) {
             if(this.readyState == 4 && this.status === 200)
             {
                 try {
-                    alert("hey");
                     var event = JSON.parse(this.responseText);
-                    document.getElementById("currentEvent").innerHTML = presentEvent(event);
+                    presentEvent(event, "currentEvent");
                     document.getElementById("currentEvent").style.display = "block";
                     if (document.getElementById("myEvents")) {
                         document.getElementById("myEvents").style.display = "none";
@@ -348,7 +381,7 @@ $(document).bind( "touchstart", function(e) {
                 }
             } else if(this.readyState == 4 && this.status === 500)
             {
-                alert(this.responseText);
+                alert(JSON.parse(this.responseText).error);
             }
         };
         request.open("GET", server_prefix + path, true );
@@ -356,29 +389,152 @@ $(document).bind( "touchstart", function(e) {
     }
 });
 
-function presentEvent(event) {
-    if (event.type === "Private") {
-        var str = event.name + "<br>" + event.location + "<br>" + event.dateAndTime + "<br>" + event.participants +
-            "<br><img style = \"float: right\" src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
-        str += "<button class = \'mybutton\' onclick=\"acceptEvent(" + event.id + ")\"> Accept </button>";
-        str += "<button class = \'mybutton\' onclick=\"rejectEvent(" + event.id + ")\"> Reject </button>";
-        alert(str);
-        return str;
-    } else {
-        var str = event.name + "<br>" + event.location + "<br>" + event.dateAndTime.split("T") + "<br>Participants:" +
-            event.participants + "<br><img style = \"float: right\" src=\'" + event.imgURL + "\'><br>" + event.description + "<br>";
-        if (event.isAdmin) {
-            event.requestToParticipantUsers.forEach(function(user) {
-                str += "<div id=request" + user + ">";
-                str += user + "<button class = \"myButton\" onclick=\"acceptUser(" + event.id + ",\'" + user + "\')\"> Acccept </button>";
-                str += "<button class = \"myButton\" onclick=\"rejectUser(" + event.id + ",\'" + user + "\')\"> Reject </button><br>";
-                str += "</div>"
-            });
-        } else {
-            str += "<button class = \'myButton\' onclick=\"askToJoinEvent(" + event.id + ")\"> Ask to join </button>";
-        }
-        return str;
+function presentEvent(event, divName) {
+    if(event.type === "Private"){
+        showPrivateEvent(event, divName);
     }
+    else{
+        showPublicEvent(event, divName);
+    }
+}
+
+function showPrivateEvent(event, divName) {
+    var strName = "Name: " + event.name;
+    var strHostedBy = "Hosted By: " + event.creator;
+    var strDateAndTime = "Date and Time: " + parseEventDateTime(event.dateAndTime);
+    var strLocation = "Location: " + event.location;
+    var strDescription = "Description: " + event.description;
+    var strAttendingUsers = "Participants: " + event.attendingUsers;
+
+    var eventDiv = document.createElement("div");
+    var img = document.createElement("img");
+    var container = document.createElement("div");
+    var strings = [];
+    strings.push(strName, strHostedBy, strDateAndTime, strLocation,
+        strDescription,strAttendingUsers);
+
+    container.className = "container";
+
+    img.src = event.imgURL || "http://mac.h-cdn.co/assets/15/35/1440442371-screen-shot-2015-08-24-at-25213-pm.png";
+    img.className = "eventImg";
+    eventDiv.className = "eventStyleNonClickAble" + event.status;
+    eventDiv.id = event.id;
+    container.appendChild(img);
+    eventDiv.appendChild(container);
+    textNodeWithSpaces(eventDiv,strings);
+
+    if (!event.isAdmin) {
+
+        var acceptButton = document.createElement("button");
+        var rejectButton = document.createElement("button");
+        acceptButton.className = "mybutton";
+        rejectButton.className = "mybutton";
+        acceptButton.setAttribute("content", "Accept");
+        rejectButton.setAttribute("content", "Reject");
+        acceptButton.innerHTML = 'Accept';
+        rejectButton.innerHTML = 'Reject';
+        acceptButton.addEventListener("click", function(){acceptEvent( event.id )});
+        rejectButton.addEventListener("click", function(){rejectEvent( event.id )});
+
+        eventDiv.appendChild(acceptButton);
+        eventDiv.appendChild(rejectButton);
+    }
+
+    var mainEventsDiv = document.getElementById(divName);
+    mainEventsDiv.appendChild(eventDiv);
+}
+
+function showPublicEvent(event, divName) {
+
+    var strName = "Name: " + event.name;
+    var strCategory = "Category: " + event.category;
+    var strHostedBy = "Hosted By: " + event.creator;
+    var strDateAndTime = "Date and Time: " + parseEventDateTime(event.dateAndTime);
+    var strLocation = "Location: " + event.location;
+    var strAges = "Ages: " + event.minAge + " - " + event.maxAge;
+    var strMaxParticipants = "Max Participants: " + event.maxParticipants;
+    var strDescription = "Description: " + event.description;
+    var strAttendingUsers = "Participants: " + event.attendingUsers;
+
+    var eventDiv = document.createElement("div");
+    var img = document.createElement("img");
+    var container = document.createElement("div");
+    var strings = [];
+    strings.push(strName, strCategory, strHostedBy, strDateAndTime, strLocation, strAges,
+        strMaxParticipants, strDescription,strAttendingUsers);
+
+    container.className = "container";
+
+    img.src = event.imgURL || "http://mac.h-cdn.co/assets/15/35/1440442371-screen-shot-2015-08-24-at-25213-pm.png";
+    img.className = "eventImg";
+    eventDiv.className = "eventStyleNonClickAble" + event.status;
+    eventDiv.id = event.id;
+    container.appendChild(img);
+    eventDiv.appendChild(container);
+    textNodeWithSpaces(eventDiv,strings);
+
+    if (event.isAdmin) {
+
+        if(event.requestToParticipantUsers.length > 0){
+            eventDiv.appendChild(document.createTextNode("Users who ask to join to this event:"));
+            eventDiv.appendChild(document.createElement("br"));
+        }
+
+        event.requestToParticipantUsers.forEach(function(user) {
+            var userDiv = document.createElement("div");
+            userDiv.id = "request" + user;
+            var acceptUserButton = document.createElement("button");
+            var rejectUserButton = document.createElement("button");
+            acceptUserButton.className = "mybutton";
+            rejectUserButton.className = "mybutton";
+            acceptUserButton.setAttribute("content", "Accept User");
+            rejectUserButton.setAttribute("content", "Reject User");
+            acceptUserButton.innerHTML = 'Accept User';
+            rejectUserButton.innerHTML = 'Reject User';
+
+            acceptUserButton.addEventListener("click", function () {
+                acceptUser(event.id, user)
+            });
+            rejectUserButton.addEventListener("click", function () {
+                rejectUser(event.id, user)
+            });
+            userDiv.appendChild(document.createTextNode(user));
+            userDiv.appendChild(acceptUserButton);
+            userDiv.appendChild(rejectUserButton);
+            userDiv.appendChild(document.createElement("br"));
+
+            eventDiv.appendChild(userDiv);
+        })
+    }
+    else{
+        if(event.status === 'NotPartOfTheEvent'){
+            var askToJoinButton = document.createElement("button");
+            askToJoinButton.className = "mybutton";
+            askToJoinButton.setAttribute("content", "Ask to join");
+            askToJoinButton.innerHTML = 'Ask to join';
+            askToJoinButton.addEventListener("click", function(){askToJoinEvent( event.id )});
+            eventDiv.appendChild(askToJoinButton);
+        }
+        else if (event.status !== 'Pending'){
+            var acceptButton = document.createElement("button");
+            var rejectButton = document.createElement("button");
+            acceptButton.className = "mybutton";
+            rejectButton.className = "mybutton";
+            acceptButton.setAttribute("content", "Accept");
+            rejectButton.setAttribute("content", "Reject");
+            acceptButton.innerHTML = 'Accept';
+            rejectButton.innerHTML = 'Reject';
+
+            acceptButton.addEventListener("click", function(){acceptEvent( event.id )});
+            rejectButton.addEventListener("click", function(){rejectEvent( event.id )});
+
+            eventDiv.appendChild(acceptButton);
+            eventDiv.appendChild(rejectButton);
+        }
+    }
+
+    var mainEventsDiv = document.getElementById(divName);
+    mainEventsDiv.appendChild(eventDiv);
 }
 
 function acceptUser(event_id,username) {
@@ -389,7 +545,7 @@ function acceptUser(event_id,username) {
         {
             alert(username + " accepted");
         } else if (this.readyState == 4 && this.status === 500) {
-            alert(this.responseText)
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("POST", server_prefix + path, true );
@@ -398,14 +554,14 @@ function acceptUser(event_id,username) {
 }
 
 function rejectUser(event_id,username) {
-    var path = "/acceptParticipationRequest/" + event_id + "/" + username;
+    var path = "/rejectParticipationRequest/" + event_id + "/" + username;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
         {
             alert(username + " rejected");
         } else if (this.readyState == 4 && this.status === 500) {
-            alert(this.responseText)
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("POST", server_prefix + path, true );
@@ -421,27 +577,26 @@ function askToJoinEvent(id) {
         {
             alert("Asked to join event");
         } else if (this.readyState == 4 && this.status === 500) {
-            alert(this.responseText)
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("POST", server_prefix + path, true );
     request.send();
-
 }
+
 function acceptEvent(id) {
     var path = "/acceptEventRequest/" + id;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
         {
-            alert("event acccepted");
+            alert("event accepted");
         } else if (this.readyState == 4 && this.status === 500) {
-            alert(this.responseText["error"])
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("POST", server_prefix + path, true );
     request.send();
-
 }
 
 function rejectEvent(id) {
@@ -450,20 +605,18 @@ function rejectEvent(id) {
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
         {
-            alert("event acccepted");
+            alert("event rejected");
         } else if (this.readyState == 4 && this.status === 500) {
-            alert(this.responseText["error"])
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("POST", server_prefix + path, true );
     request.send();
 }
-function isEvent(str) {
-    return (str === "eventStyleNo" ||  str === "eventStyleYes" || str === "eventStyleMaybe");
-}
 
-function shit() {
-    alert("shit!");
+function isEvent(str) {
+    return (str === "eventStyleNo" ||  str === "eventStyleYes" || str === "eventStyleMaybe"
+    || str === "eventStylePending"|| str === "eventStyleNotPartOfTheEvent");
 }
 
 function textNodeWithSpaces(div, strings) {
@@ -478,8 +631,6 @@ function textNodeWithSpaces(div, strings) {
         div.appendChild(linebreak);
     }
 }
-
-
 
 function addMockEvent(username, goingStatus) {
     var event = document.createElement("div");

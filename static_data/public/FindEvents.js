@@ -1,10 +1,5 @@
-/**
- * Created by dbublil on 8/30/2017.
- */
-
 var server_prefix = "https://eventspp.herokuapp.com";
 // var server_prefix = "http://localhost:5000";
-
 
 $( "#publicEventCategory" ).change(function() {
     document.getElementById("myPublicEvents").innerHTML = "";
@@ -13,14 +8,13 @@ $( "#publicEventCategory" ).change(function() {
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
         {
-            alert(this.responseText);
             var arr = JSON.parse(this.responseText);
             for (var i = 0; i < arr.length; i++) {
                 addEvent(arr[i], "myPublicEvents");
             }
         } else if(this.readyState == 4 && this.status === 500)
         {
-            alert(this.responseText);
+            alert(JSON.parse(this.responseText).error);
         }
     };
     request.open("GET", server_prefix + path, true );
