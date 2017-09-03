@@ -272,13 +272,6 @@ function getDocValue(id) {
 
 function addMyEvents() {
 
-    var strarr = ["Yes", "No", "Maybe"];
-    for (var i =0; i < 25; i++) {
-
-        var j = Math.floor(Math.random() * 3);
-        // addMockEvent(i,strarr[j]);
-    }
-
     var path = "/getEvents";
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
@@ -630,21 +623,4 @@ function textNodeWithSpaces(div, strings) {
         var linebreak = document.createElement('br');
         div.appendChild(linebreak);
     }
-}
-
-function addMockEvent(username, goingStatus) {
-    var event = document.createElement("div");
-    var img = document.createElement("img");
-    var txt = document.createTextNode("Text text text text");
-    var container = document.createElement("div");
-    container.className = "container";
-    img.src = Math.random() > 0.5 ? "http://mac.h-cdn.co/assets/15/35/1440442371-screen-shot-2015-08-24-at-25213-pm.png":
-        "http://images.fashionmodeldirectory.com/images/models/14441/header_image_8b1d51db-3e50-4965-b0a7-a524430b4f67.jpg";
-    img.className = "eventImg";
-    event.className = "eventStyle" + goingStatus;
-    container.appendChild(img);
-    event.appendChild(txt);
-    event.appendChild(container);
-    var mainEventsDiv = document.getElementById("myEvents");
-    mainEventsDiv.appendChild(event);
 }
