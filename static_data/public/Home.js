@@ -53,6 +53,21 @@ $('.tab a').on('click', function (e) {
 function moveToAfterLogin() {
     window.location.href = server_prefix + "/public/AfterLogin.html";
 }
+function initConnection() {
+    var path = "/public/AfterLogin.html";
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            alert("got after login");
+        }
+        else if (this.readyState == 4 && this.status == 500) {
+            alert("problema fter login");
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
+}
 
 function hidePrivate() {
     document.getElementById("private").style.display = "none";
