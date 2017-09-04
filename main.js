@@ -12,14 +12,12 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var app = express();
-
-
-var eventDiscriptions = ["Live concert!!!", "Movies :)", "Coffee and chill", "Pool Party",  "Football"];
-var imgURLs= ["http://az616578.vo.msecnd.net/files/2017/02/28/6362384699061998551682913604_HERO_IBIZA_CLOSING_PARTIES_Privilege.jpg",
+eventDiscriptions = ["Live concert!!!", "Movies :)", "Coffee and chill", "Pool Party",  "Football"];
+imgURLs= ["http://az616578.vo.msecnd.net/files/2017/02/28/6362384699061998551682913604_HERO_IBIZA_CLOSING_PARTIES_Privilege.jpg",
     "http://images.clipartpanda.com/movie-night-clipart-9cp4q9xcE.jpeg",
     "https://fthmb.tqn.com/9tIYcqCpS8njB2VIOnChlz_nY5I=/1500x1000/filters:fill(auto,1)/about/Cafeconleche-56fcf86e5f9b586195b73dbf.JPG",
     "http://lathampool.com/trilogy/wp-content/uploads/sites/5/2017/05/trilogy-pools-home-1.jpg",
-    "http://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Kids/Articles/Soccer+Tips/carousel.jpg"];
+    "http://content.active.com/Assets/Active.com+Content+Site+Digital+Assets/Kids/Articles/Soccer+Tips/carousel.jpg", ""];
 
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -27,59 +25,32 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('static_data'));
 app.set('port', (process.env.PORT || defaultPort));
 
-
-app.options("/*", function(req, res, next){
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.send(200);
-});
-
-
-app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-
-    //intercepts OPTIONS method
-    if ('OPTIONS' === req.method) {
-        //respond with 200
-        res.send(200);
-    }
-    else {
-        //move on
-        next();
-    }
-});
-
-app.post('/register', function(req, res, next) {
-    var userName = req.body.username;
+app.post('/register/:username/:password/:email/:birthday/:sex', function(req, res, next) {
+    var userName = req.params.username;
     var password = userNamesToPasswords[userName];
 
     if (password){
         res.status(500).json({ error: 'The user name already exists' });
     }
     else{
-        var userEmail = req.body.email;
-        var userBirthday = req.body.birthday;
-        var userSex = req.body.sex;
-        var userImage = req.body.image;
+        var userEmail = req.params.email;
+        var userBirthday = req.params.birthday;
+        var userSex = req.params.sex;
         var user = { name: userName, email: userEmail, birthday: userBirthday, age: calculateMyAge(userBirthday),
-            sex: userSex, image: userImage, friends:[], friendsRequests:[], events:[] };
+            sex: userSex, friends:[], friendsRequests:[], events:[] };
 
-        userNamesToPasswords[userName] = req.body.password;
+        userNamesToPasswords[userName] = req.params.password;
         userNamesToUsers[userName] = user;
         res.status(200).json({ message: 'The user has been registered' });
     }
 });
 
-
-app.post('/login', function(req, res,next) {
-    var userName = req.body.username;
+app.post('/login/:username/:password', function(req, res,next) {
+    var userName = req.params.username;
     var password = userNamesToPasswords[userName];
 
     if (password){
-        if (password === req.body.password){
+        if (password === req.params.password){
             var cookie = currentCookie;
             userNamesToCookies[userName] = cookie;
             cookiesToUserNames[cookie] = userName;
@@ -200,14 +171,14 @@ app.get('/friends',function (req,res,next) {
     res.status(200).json(userNamesToUsers[userName].friends);
 });
 
-app.post('/createPrivateEvent',function(req,res,next){
+app.post('/createPrivateEvent/:name/:location/:dateAndTime/:participants/:imgURL/:description',function(req,res,next){
     var userName = getUserName(req);
-    var eventName = req.body["name"];
-    var eventLocation = req.body["location"];
-    var eventDateAndTime = req.body["dateAndTime"];
-    var eventParticipants = req.body["participants"];
-    var eventImageURL = req.body["imgURL"];
-    var eventDescription = req.body["description"];
+    var eventName = req.params.name;
+    var eventLocation = req.params.location;
+    var eventDateAndTime = req.params.dateAndTime;
+    var eventParticipants = JSON.parse(req.params.participants);
+    var eventImageURL = req.params.imgURL;
+    var eventDescription = req.params.description;
 
     eventParticipants.push(userName);
     var event = {name: eventName, location: eventLocation, dateAndTime: eventDateAndTime, creator: userName,
@@ -222,18 +193,18 @@ app.post('/createPrivateEvent',function(req,res,next){
     res.status(200).json({ message: 'Private event was created' });
 });
 
-app.post('/createPublicEvent',function(req,res,next){
+app.post('/createPublicEvent/:name/:category/:location/:dateAndTime/:maxAge/:minAge/:maxParticipants/:participants/:imgURL/:description/',function(req,res,next){
     var userName = getUserName(req);
-    var eventName = req.body["name"];
-    var eventCategory = req.body["category"];
-    var eventLocation = req.body["location"];
-    var eventDateAndTime = req.body["dateAndTime"];
-    var eventMaxAge = req.body["maxAge"];
-    var eventMinAge = req.body["minAge"];
-    var eventMaxParticipants = req.body["maxParticipants"];
-    var eventImageURL = req.body["imgURL"];
-    var eventDescription = req.body["description"];
-    var eventParticipants = req.body["participants"];
+    var eventName = req.params["name"];
+    var eventCategory = req.params["category"];
+    var eventLocation = req.params["location"];
+    var eventDateAndTime = req.params["dateAndTime"];
+    var eventMaxAge = req.params["maxAge"];
+    var eventMinAge = req.params["minAge"];
+    var eventMaxParticipants = req.params["maxParticipants"];
+    var eventImageURL = req.params["imgURL"];
+    var eventDescription = req.params["description"];
+    var eventParticipants = JSON.parse(req.params["participants"]);
 
     eventParticipants.push(userName);
     var event = {name: eventName, category: eventCategory, location: eventLocation, creator: userName,
@@ -276,7 +247,6 @@ function changeRSVP(status, res, req) {
         var eventIndex = userNamesToUsers[userName].events.indexOf(parseInt(eventId));
         if (eventIndex > -1) {
             changeEventStatus(status, event, userName, res);
-            res.status(200).json({message: userName + ' ' + status + ' to ' + event.name});
         }
         else {
             res.status(500).json({error: 'Event ID does not found'});
@@ -294,6 +264,7 @@ function changeEventStatus(status, event, userName, res) {
             if (event.type === "Public") {
                 if (event.attendingUsers.length < event.maxParticipants) {
                     changeToAttending(event, userName);
+                    res.status(200).json({message: userName + ' ' + status + ' to ' + event.name});
                 }
                 else {
                     res.status(500).json({ error: 'The event is full' });
@@ -301,6 +272,7 @@ function changeEventStatus(status, event, userName, res) {
             }
             else {
                 changeToAttending(event, userName);
+                res.status(200).json({message: userName + ' ' + status + ' to ' + event.name});
             }
         }
     }
@@ -317,6 +289,7 @@ function changeEventStatus(status, event, userName, res) {
 
             event.notGoingUsers.push(userName);
         }
+        res.status(200).json({message: userName + ' ' + status + ' to ' + event.name});
     }
 }
 
@@ -584,7 +557,7 @@ function createUser(userName, password, ageFactor) {
     var baseAge = 20;
     var userBirthday = new Date(Date.now() - ((baseAge + ageFactor) * oneYear));
     var user = { name: userName, email: "mail@mail.com", birthday: userBirthday, age: calculateMyAge(userBirthday),
-        sex: "Male", image: "img.jpg", friends:[], friendsRequests:[], events:[] };
+        sex: "Male", friends:[], friendsRequests:[], events:[] };
 
     userNamesToUsers[userName] = user;
 }
@@ -616,9 +589,10 @@ function createEvents(){
         var userName = "" + i;
         var user = userNamesToUsers[userName];
         var dateAndTime = new Date(Date.now());
-        var randomEventIndex = Math.floor(Math.random() * 5);
+        var description = eventDiscriptions[i % eventDiscriptions.length];
+        var imgURL = imgURLs[i % imgURLs.length];
         var event = {name: privateEventName, location: "Tel Aviv", dateAndTime: dateAndTime, creator: userName,
-            participants: [userName], imgURL: imgURLs[randomEventIndex], description: eventDiscriptions[randomEventIndex],
+            participants: [userName], imgURL: imgURL, description: description,
             attendingUsers: [userName], noResponseUsers: [],notGoingUsers: [], type: "Private", id: currentEventID};
 
         for (var j = 0;  j < user.friends.length; j++)
@@ -641,10 +615,12 @@ function createEvents(){
         var eventMaxAge = parseInt(user.age);
         var eventMinAge = 20;
         var eventMaxParticipants = 5;
+        var description = eventDiscriptions[i % eventDiscriptions.length];
+        var imgURL = imgURLs[i % imgURLs.length];
         var event = {
             name: eventName, category: eventCategory, location: "Tel Aviv", creator: userName,
             dateAndTime: dateAndTime, maxAge: eventMaxAge, minAge: eventMinAge,
-            maxParticipants: eventMaxParticipants, imgURL: "", description: "Beer Party",
+            maxParticipants: eventMaxParticipants, imgURL: imgURL, description: description,
             participants: [userName], attendingUsers: [userName], noResponseUsers: [], notGoingUsers: [],
             requestToParticipantUsers: [], type: "Public", id: currentEventID
         };

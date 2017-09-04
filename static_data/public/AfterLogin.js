@@ -1,5 +1,5 @@
 var server_prefix = "https://eventspp.herokuapp.com";
-// var server_prefix = "http://localhost:5000";
+//var server_prefix = "http://localhost:5000";
 currentFriendList = [];
 
 function authenticate() {
@@ -23,24 +23,12 @@ function acceptOrReject(username) {
     return "<button class=\"myButton\" onclick=\"acceptFriend(\'" + username + "\')\">Accept</button>";
 }
 
-function goToFriends() {
-    goToPage("Friends.html");
-}
-
-function goToEvents() {
-    goToPage("Events.html");
-}
-
-function goHome() {
-    goToPage("AfterLogin.html");
-}
-
 function disconnect() {
     goToPage("Home.html");
 }
 
 function acceptFriend(username) {
-    var path = "/acceptFriend/" + username;
+    var path = "/acceptFriend/" + encodeURIComponent(username);
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
@@ -108,7 +96,7 @@ setInterval(refreshFriendRequests, 1000);
 
 function sendFriendRequest() {
     var user = document.getElementById("friendRequestName").value;
-    var path = "/addFriend/" + user;
+    var path = "/addFriend/" + encodeURIComponent(user);
     var request = new XMLHttpRequest();
 
     request.onreadystatechange = function () {
@@ -181,28 +169,26 @@ function getSelectValue(id) {
     return e.options[e.selectedIndex].text;
 }
 
-function eventer() {
-    var eventObj = {
-        "name" : getDocValue("eventName"),
-        "location" : getDocValue("eventLoc"),
-        "dateAndTime" : getDocValue("eventDate"),
-        "imgURL" : getDocValue("eventPic"),
-        "description" : getDocValue("eventDescription"),
-        "participants" : currentFriendList
-    };
+function privateEventer() {
+    var name = getDocValue("eventName");
+    var location = getDocValue("eventLoc");
+    var dateAndTime = getDocValue("eventDate");
+    var imgURL = getDocValue("eventPic");
+    var description = getDocValue("eventDescription");
+    var participants = currentFriendList;
+    var timestamp = Date.parse(dateAndTime);
 
-    var timestamp = Date.parse(eventObj.dateAndTime);
+    if (name !== "" && location !== "" && isNaN(timestamp) === false &&
+        description !== "" && participants.length > 0){
 
-    if (eventObj.name !== "" && eventObj.location !== "" && isNaN(timestamp) === false &&
-        eventObj.description !== "" && eventObj.participants.length > 0){
-
-        var path = "/createPrivateEvent";
+        var path = "/createPrivateEvent/" + encodeURIComponent(name) + "/" + encodeURIComponent(location) + "/" +
+            encodeURIComponent(dateAndTime) + "/" + encodeURIComponent(JSON.stringify(participants)) + "/" +
+            encodeURIComponent(imgURL) + "/" + encodeURIComponent(description);
 
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if(this.readyState == 4 && this.status === 200)
             {
-                alert(this.responseText);
                 alert(JSON.parse(this.responseText).message);
             } else if(this.readyState == 4 && this.status === 500)
             {
@@ -210,8 +196,6 @@ function eventer() {
             }
         };
         request.open("POST", server_prefix + path, true );
-        request.setRequestHeader("Content-Type", "application/json");
-        request.send(JSON.stringify(eventObj));
         currentFriendList = [];
         request.send();
     }
@@ -221,30 +205,27 @@ function eventer() {
 }
 
 function publicEventer() {
-    var eventObj = {
-        "name" : getDocValue("publicEventName"),
-        "category": getSelectValue("publicEventCategory"),
-        "location" : getDocValue("publicEventLoc"),
-        "dateAndTime" : getDocValue("publicEventDate"),
-        "imgURL" : getDocValue("publicEventPic"),
-        "description" : getDocValue("publicEventDescription"),
-        "participants" : currentFriendList,
-        "maxAge": getDocValue("publicMaxAge"),
-        "minAge": getDocValue("publicMinAge"),
-        "maxParticipants" : getDocValue("publicEventMaxPartici")
-    };
+    var name = getDocValue("publicEventName");
+    var category = getSelectValue("publicEventCategory");
+    var location = getDocValue("publicEventLoc");
+    var dateAndTime = getDocValue("publicEventDate");
+    var imgURL = getDocValue("publicEventPic");
+    var description = getDocValue("publicEventDescription");
+    var participants = currentFriendList;
+    var maxAge = getDocValue("publicMaxAge");
+    var minAge = getDocValue("publicMinAge");
+    var maxParticipants = getDocValue("publicEventMaxPartici");
+    var timestamp = Date.parse(dateAndTime);
+    var maxAgeInt = parseInt(maxAge);
+    var minAgeInt = parseInt(minAge);
+    var maxParticipantsInt = parseInt(maxParticipants);
 
-    var timestamp = Date.parse(eventObj.dateAndTime);
-    var maxAge = parseInt(eventObj.maxAge);
-    var minAge = parseInt(eventObj.minAge);
-    var maxParticipants = parseInt(eventObj.maxParticipants);
-
-    if (eventObj.name !== "" && eventObj.location !== "" && isNaN(timestamp) === false &&
-        eventObj.description !== "" && isNaN(maxAge) === false && isNaN(minAge) === false && minAge > 0 &&
-        maxAge >= minAge && isNaN(maxParticipants) === false && maxParticipants >= 2){
-
-        var path = "/createPublicEvent";
-
+    if (name !== "" && location !== "" && isNaN(timestamp) === false &&
+        description !== "" && isNaN(maxAgeInt) === false && isNaN(minAgeInt) === false && minAge > 0 &&
+        maxAge >= minAge && isNaN(maxParticipantsInt) === false && maxParticipants >= 2){
+        var path = "/createPublicEvent/" + encodeURIComponent(name) + "/" + encodeURIComponent(category) + "/" +
+            encodeURIComponent(location) + "/" + encodeURIComponent(dateAndTime) + "/" + maxAge + "/" + minAge + "/" +
+            maxParticipants + "/" + encodeURIComponent(JSON.stringify(participants)) + "/" + encodeURIComponent(imgURL) + "/" + encodeURIComponent(description);
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if(this.readyState == 4 && this.status === 200)
@@ -256,8 +237,6 @@ function publicEventer() {
             }
         };
         request.open("POST", server_prefix + path, true );
-        request.setRequestHeader("Content-Type", "application/json");
-        request.send(JSON.stringify(eventObj));
         currentFriendList = [];
         request.send();
     }
@@ -531,7 +510,7 @@ function showPublicEvent(event, divName) {
 }
 
 function acceptUser(event_id,username) {
-    var path = "/acceptParticipationRequest/" + event_id + "/" + username;
+    var path = "/acceptParticipationRequest/" + event_id + "/" + encodeURIComponent(username);
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
@@ -547,7 +526,7 @@ function acceptUser(event_id,username) {
 }
 
 function rejectUser(event_id,username) {
-    var path = "/rejectParticipationRequest/" + event_id + "/" + username;
+    var path = "/rejectParticipationRequest/" + event_id + "/" + encodeURIComponent(username);
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
@@ -620,7 +599,7 @@ function textNodeWithSpaces(div, strings) {
         var linebreak = document.createElement('br');
         div.appendChild(linebreak);
 
-        var linebreak = document.createElement('br');
+        linebreak = document.createElement('br');
         div.appendChild(linebreak);
     }
 }

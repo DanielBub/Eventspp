@@ -1,5 +1,6 @@
 var server_prefix = "https://eventspp.herokuapp.com";
-// var server_prefix = "http://localhost:5000";
+//var server_prefix = "http://localhost:5000";
+
 var current_user = "";
 var isMale = true;
 
@@ -70,49 +71,34 @@ function hidePublic() {
 }
 
 function login() {
-    var req = "";
-    try {
-        var user = document.getElementById("login_user").value;
-        var password = document.getElementById("login_password").value;
-        var path = "/login";
-        var request = new XMLHttpRequest();
-        var userObj = {
-            username: user,
-            password: password
-        };
-        request.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status === 200) {
-                current_user = user;
-                alert("Welcome " + user + "!");
-                moveToAfterLogin();
-            } else if (this.readyState == 4 && this.status === 500) {
-                alert(JSON.parse(this.responseText).error);
-            }
-        };
-        request.open("POST", server_prefix + path, true);
-        request.setRequestHeader("Content-Type", "application/json");
-        req = request;
-        request.send(JSON.stringify(userObj));
-        req.send();
-    } catch (err) {
-        req.send();
-    }
+    var user = document.getElementById("login_user").value;
+    var password = document.getElementById("login_password").value;
+    var path = "/login/" + encodeURIComponent(user) + "/" + encodeURIComponent(password);
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status === 200) {
+            current_user = user;
+            alert("Welcome " + user + "!");
+            moveToAfterLogin();
+        } else if (this.readyState == 4 && this.status === 500) {
+            alert(JSON.parse(this.responseText).error);
+        }
+    };
+    request.open("POST", server_prefix + path, true);
+    request.send();
 }
 
 function signup() {
-    var userObj = {
-        username: document.getElementById("username").value,
-        password: document.getElementById("password").value,
-        email: document.getElementById("email").value,
-        birthday: document.getElementById("birthday").value,
-        sex: isMale ? "Male" : "Female"
-    };
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    var email = document.getElementById("email").value;
+    var birthday = document.getElementById("birthday").value;
+    var sex = isMale ? "Male" : "Female";
+    var timestamp = Date.parse(birthday);
 
-    var timestamp = Date.parse(userObj.birthday);
-
-    if (userObj.username !== "" && userObj.password !== "" &&
-        userObj.email !== "" && isNaN(timestamp) === false) {
-        var path = "/register";
+    if (username !== "" && password !== "" &&
+        email !== "" && isNaN(timestamp) === false) {
+        var path = "/register/" + encodeURIComponent(username) + "/" + encodeURIComponent(password) +"/" + encodeURIComponent(email) + "/" + encodeURIComponent(birthday) + "/" + sex;
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
@@ -122,8 +108,6 @@ function signup() {
             }
         };
         request.open("POST", server_prefix + path, true);
-        request.setRequestHeader("Content-Type", "application/json");
-        request.send(JSON.stringify(userObj));
         request.send();
     }
     else{
