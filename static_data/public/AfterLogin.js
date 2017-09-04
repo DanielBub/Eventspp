@@ -335,13 +335,11 @@ function parseEventDateTime(strDate){
 
 $(document).bind("touchstart", function(e) {
     if (isEvent(e.target.className)) {
-        touchstartEvent = e.target.id;
-        alert("touch start " + touchstartEvent);
+        touchstartEvent = e.target.className;
     }
 });
 
 $(document).bind( "touchend", function(e) {
-    alert("touch end " +e.target.className);
     if (touchstartEvent === e.target.className && isEvent(e.target.className)) {
         var eventId =  e.target.id;
 
