@@ -58,7 +58,7 @@ app.post('/login/:username/:password', function(req, res,next) {
             user["age"] = calculateMyAge(user.birthday);
             currentCookie++;
             res.cookie('appId', cookie, { maxAge: maxCookieTime});
-            res.redirect("/public/AfterLogin.html")
+            res.status(200).send("/public/AfterLogin.html")
         }
         else{
             res.status(500).json({ error: 'Wrong user name or password' });
