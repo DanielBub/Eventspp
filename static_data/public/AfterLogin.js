@@ -8,6 +8,7 @@ function authenticate() {
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 500)
         {
+            alert("please log in");
             disconnect();
         }
         else {
