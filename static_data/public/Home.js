@@ -58,10 +58,8 @@ function initConnection() {
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 200)
-        {
-        }
-        else if (this.readyState == 4 && this.status == 500) {
-        }
+        {}
+        else if (this.readyState == 4 && this.status == 500) {}
     };
     request.open("POST", server_prefix + path, true );
     request.send();

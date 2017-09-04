@@ -1,6 +1,7 @@
 var server_prefix = "https://eventspp.herokuapp.com";
 //var server_prefix = "http://localhost:5000";
 currentFriendList = [];
+var touchstartEvent = "";
 
 function authenticate() {
     var path = "/authenticate";
@@ -332,8 +333,14 @@ function parseEventDateTime(strDate){
     return date.toDateString() + " " + date.toLocaleTimeString();
 }
 
-$(document).bind( "touchend", function(e) {
+$(document).bind("touchstart", function(e) {
     if (isEvent(e.target.className)) {
+        touchstartEvent = e.target.id;
+    }
+});
+
+$(document).bind( "touchend", function(e) {
+    if (touchstartEvent === e.target.className && isEvent(e.target.className)) {
         var eventId =  e.target.id;
 
         var path = "/getEvent/" + eventId;
