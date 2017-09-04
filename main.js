@@ -12,8 +12,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var app = express();
-eventDiscriptions = ["Live concert!!!", "Movies :)", "Coffee and chill", "Pool Party",  "Football"];
-imgURLs= ["http://az616578.vo.msecnd.net/files/2017/02/28/6362384699061998551682913604_HERO_IBIZA_CLOSING_PARTIES_Privilege.jpg",
+var eventDiscriptions = ["Live concert!!!", "Movies :)", "Coffee and chill", "Pool Party",  "Football"];
+var imgURLs= ["http://az616578.vo.msecnd.net/files/2017/02/28/6362384699061998551682913604_HERO_IBIZA_CLOSING_PARTIES_Privilege.jpg",
     "http://images.clipartpanda.com/movie-night-clipart-9cp4q9xcE.jpeg",
     "https://fthmb.tqn.com/9tIYcqCpS8njB2VIOnChlz_nY5I=/1500x1000/filters:fill(auto,1)/about/Cafeconleche-56fcf86e5f9b586195b73dbf.JPG",
     "http://lathampool.com/trilogy/wp-content/uploads/sites/5/2017/05/trilogy-pools-home-1.jpg",
