@@ -46,26 +46,31 @@ app.post('/register/:username/:password/:email/:birthday/:sex', function(req, re
 });
 
 app.post('/login/:username/:password', function(req, res,next) {
-    var userName = req.params.username;
-    var password = userNamesToPasswords[userName];
+    try {
+        var userName = req.params.username;
+        var password = userNamesToPasswords[userName];
 
-    if (password){
-        if (password === req.params.password){
-            var cookie = currentCookie;
-            userNamesToCookies[userName] = cookie;
-            cookiesToUserNames[cookie] = userName;
-            var user = userNamesToUsers[userName];
-            user["age"] = calculateMyAge(user.birthday);
-            currentCookie++;
-            res.cookie('appId', cookie, { maxAge: maxCookieTime});
-            res.status(200).send("/public/AfterLogin.html")
+        console.log(userName + " tries to login");
+        if (password) {
+            if (password === req.params.password) {
+                var cookie = currentCookie;
+                userNamesToCookies[userName] = cookie;
+                cookiesToUserNames[cookie] = userName;
+                var user = userNamesToUsers[userName];
+                user["age"] = calculateMyAge(user.birthday);
+                currentCookie++;
+                res.cookie('appId', cookie, {maxAge: maxCookieTime});
+                res.status(200).send("/public/AfterLogin.html")
+            }
+            else {
+                res.status(500).json({error: 'Wrong user name or password'});
+            }
         }
-        else{
-            res.status(500).json({ error: 'Wrong user name or password' });
+        else {
+            res.status(500).json({error: 'Wrong user name or password'});
         }
-    }
-    else{
-        res.status(500).json({ error: 'Wrong user name or password' });
+    } catch(err) {
+        console.log(err);
     }
 });
 
