@@ -20,9 +20,19 @@ function authenticate() {
 }
 
 function initConnection() {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", "https://eventspp.herokuapp.com/public/AfterLogin.html", false ); // false for synchronous request
-    xmlHttp.send( null );
+    var path = "/public/AfterLogin.html";
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if(this.readyState == 4 && this.status === 200)
+        {
+            alert("got after login");
+        }
+        else if (this.readyState == 4 && this.status == 500) {
+            alert("problema fter login");
+        }
+    };
+    request.open("POST", server_prefix + path, true );
+    request.send();
 }
 
 function acceptOrReject(username) {
