@@ -8,7 +8,6 @@ function authenticate() {
     request.onreadystatechange = function () {
         if(this.readyState == 4 && this.status === 500)
         {
-            alert("Please log in.");
             disconnect();
         }
         else {
@@ -17,6 +16,12 @@ function authenticate() {
     };
     request.open("POST", server_prefix + path, true );
     request.send();
+}
+
+function initConnection() {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "https://eventspp.herokuapp.com/public/AfterLogin.html", false ); // false for synchronous request
+    xmlHttp.send( null );
 }
 
 function acceptOrReject(username) {
