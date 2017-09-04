@@ -45,6 +45,10 @@ app.post('/register/:username/:password/:email/:birthday/:sex', function(req, re
     }
 });
 
+app.get('/startConnection', function(req,res,next) {
+   res.status(200).send("all good");
+});
+
 app.post('/login/:username/:password', function(req, res,next) {
     try {
         var userName = req.params.username;
@@ -61,16 +65,13 @@ app.post('/login/:username/:password', function(req, res,next) {
                 currentCookie++;
                 res.cookie('appId', cookie, {maxAge: maxCookieTime});
                 res.status(200).send("/public/AfterLogin.html")
-                console.log("sucesss message sent");
             }
             else {
                 res.status(500).json({error: 'Wrong user name or password'});
-                console.log("wrong usernamet");
             }
         }
         else {
             res.status(500).json({error: 'Wrong user name or password'});
-            console.log("wrong usernamet");
         }
     } catch(err) {
         console.log(err);
