@@ -50,7 +50,7 @@ app.post('/login/:username/:password', function(req, res,next) {
         var userName = req.params.username;
         var password = userNamesToPasswords[userName];
 
-        console.log(userName + " tries to login");
+        console.log(userName + " tries to login with password " + password);
         if (password) {
             if (password === req.params.password) {
                 var cookie = currentCookie;
@@ -61,13 +61,16 @@ app.post('/login/:username/:password', function(req, res,next) {
                 currentCookie++;
                 res.cookie('appId', cookie, {maxAge: maxCookieTime});
                 res.status(200).send("/public/AfterLogin.html")
+                console.log("sucesss message sent");
             }
             else {
                 res.status(500).json({error: 'Wrong user name or password'});
+                console.log("wrong usernamet");
             }
         }
         else {
             res.status(500).json({error: 'Wrong user name or password'});
+            console.log("wrong usernamet");
         }
     } catch(err) {
         console.log(err);
