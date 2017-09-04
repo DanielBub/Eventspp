@@ -54,6 +54,7 @@ function moveToAfterLogin() {
     window.location.href = server_prefix + "/public/AfterLogin.html";
 }
 function initConnection() {
+    alert("Here");
     var path = "/public/AfterLogin.html";
     var request = new XMLHttpRequest();
     request.onreadystatechange = function () {
