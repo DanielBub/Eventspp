@@ -336,10 +336,12 @@ function parseEventDateTime(strDate){
 $(document).bind("touchstart", function(e) {
     if (isEvent(e.target.className)) {
         touchstartEvent = e.target.id;
+        alert(touchstartEvent);
     }
 });
 
 $(document).bind( "touchend", function(e) {
+    alert(e.target.className);
     if (touchstartEvent === e.target.className && isEvent(e.target.className)) {
         var eventId =  e.target.id;
 
