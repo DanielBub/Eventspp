@@ -330,7 +330,7 @@ function parseEventDateTime(strDate){
     return date.toDateString() + " " + date.toLocaleTimeString();
 }
 
-$(document).bind( "touchstart", function(e) {
+$(document).bind( "touchend", function(e) {
     if (isEvent(e.target.className)) {
         var eventId =  e.target.id;
 
